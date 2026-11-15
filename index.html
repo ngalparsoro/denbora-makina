@@ -1,0 +1,1204 @@
+<!doctype html>
+<html lang="eu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gaindegia Adierazle Galeria</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: indicator picker → map stage (real Basque Country map with a rolling year odometer, 2/3) beside animated side panels → a player dock (play, timeline with events) docked under map and charts. */
+:root{
+  --bg:#edf3f4; --surface:#ffffff; --surface-2:#f4f8f9; --ink:#0f2a33; --ink-2:#47636d; --ink-3:#7c949b; --line:#d3e1e4;
+  --accent:#c8650c; --accent-2:#e8871e; --accent-soft:#fbe5cf; --on-accent:#ffffff;
+  --c-demo:#18738b; --c-eko:#c25a0a; --c-giz:#6a4c9c; --c-ing:#3d7d3a; --c-kul:#a8325e; --on-sec:#ffffff;
+  --ramp-lo:#eef3f4; --map-empty:#e3eaec; --muni-stroke:#ffffff; --herr-stroke:#0f2a33;
+  --up:#1f7a8c; --down:#c2412d; --eu:#8796a0;
+  --console:#0f2a33; --console-ink:#e8f2f4; --console-2:#1d3d48;
+  --f-display:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c181c; --surface:#122329; --surface-2:#172b32; --ink:#e4f0f2; --ink-2:#9fb8bf; --ink-3:#6f8a92; --line:#24414a;
+  --accent:#f0973a; --accent-2:#f5a650; --accent-soft:#3a2614; --on-accent:#1a0e03;
+  --c-demo:#4cb0c9; --c-eko:#f29a4a; --c-giz:#a78be0; --c-ing:#79c072; --c-kul:#e07aa0; --on-sec:#0b1a1e;
+  --ramp-lo:#1b3038; --map-empty:#1a2d33; --muni-stroke:#0c181c; --herr-stroke:#e4f0f2;
+  --up:#4cb0c9; --down:#ef6a52; --eu:#8a9aa3;
+  --console:#07272f; --console-ink:#e8f2f4; --console-2:#123e49; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c181c; --surface:#122329; --surface-2:#172b32; --ink:#e4f0f2; --ink-2:#9fb8bf; --ink-3:#6f8a92; --line:#24414a;
+  --accent:#f0973a; --accent-2:#f5a650; --accent-soft:#3a2614; --on-accent:#1a0e03;
+  --c-demo:#4cb0c9; --c-eko:#f29a4a; --c-giz:#a78be0; --c-ing:#79c072; --c-kul:#e07aa0; --on-sec:#0b1a1e;
+  --ramp-lo:#1b3038; --map-empty:#1a2d33; --muni-stroke:#0c181c; --herr-stroke:#e4f0f2;
+  --up:#4cb0c9; --down:#ef6a52; --eu:#8a9aa3;
+  --console:#07272f; --console-ink:#e8f2f4; --console-2:#123e49; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.sec-demo{--sc:var(--c-demo)} .sec-eko{--sc:var(--c-eko)} .sec-giz{--sc:var(--c-giz)} .sec-ing{--sc:var(--c-ing)} .sec-kul{--sc:var(--c-kul)}
+[hidden]{display:none!important}
+.ptext a{color:var(--sc,var(--accent));white-space:nowrap}
+.small{font-size:13px} .muted{color:var(--ink-2)}
+
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:22px 12px}
+.brand{display:flex;align-items:center;gap:clamp(14px,2.4vw,26px);flex-wrap:wrap;animation:brandIn .8s cubic-bezier(.2,.9,.25,1)}
+@keyframes brandIn{from{opacity:0;transform:translateY(-10px)}}
+.brand .logo{margin:0;line-height:0}
+.brand .logo img{height:clamp(62px,8.4vw,108px);width:auto;display:block}
+.brand .ttl{border-left:3px solid var(--accent-2);padding-left:clamp(12px,1.8vw,20px);display:grid;gap:4px}
+.brand .ttl .big{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3.4vw,40px);line-height:1;letter-spacing:-.015em;text-wrap:balance}
+.brand .ttl .big em{font-style:normal;color:var(--accent)}
+.brand .dot{width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--c-demo) 0 20%,var(--c-eko) 20% 40%,var(--c-giz) 40% 60%,var(--c-ing) 60% 80%,var(--c-kul) 80%);display:grid;place-items:center;flex:none;animation:spin 14s linear infinite}
+.brand .dot::after{content:"";width:13px;height:13px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand small{display:block;font-size:14px;color:var(--ink-2)}
+.hright{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fict{font-size:12px;background:var(--accent-soft);color:var(--ink-2);border-radius:999px;padding:3px 10px}
+.fict b{color:var(--accent)}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.lang button{border:0;background:transparent;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* picker */
+.picker{display:grid;gap:10px;margin-block:8px 14px}
+.dial{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dial button{border:2px solid var(--sc);background:var(--surface);border-radius:999px;padding:4px 14px 4px 4px;display:flex;align-items:center;gap:8px;font-weight:700;transition:background .25s,color .25s,transform .15s}
+.dial button:active{transform:scale(.96)}
+.dial .c{width:28px;height:28px;border-radius:50%;background:var(--sc);color:var(--on-sec);display:grid;place-items:center;font-family:var(--f-display)}
+.dial button[aria-pressed="true"]{background:var(--sc);color:var(--on-sec)}
+.dial button[aria-pressed="true"] .c{background:var(--on-sec);color:var(--sc)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:background .25s,border-color .25s,transform .15s;animation:chipIn .35s backwards}
+.chips button:active{transform:scale(.95)}
+@keyframes chipIn{from{opacity:0;transform:translateY(6px)}}
+.chips button[aria-pressed="true"]{border-color:var(--sc);background:var(--sc);color:var(--on-sec)}
+.chips .cd{font:11px var(--f-mono);opacity:.75}
+.pin{width:8px;height:8px;border-radius:50%;background:var(--accent-2);display:inline-block}
+.pinleg{font-size:12px;color:var(--ink-3);display:inline-flex;gap:6px;align-items:center}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:980px){.stage{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0}
+.mapcard{position:relative;overflow:hidden;border:2px solid var(--sc);transition:border-color .4s}
+.maphd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;padding:12px 16px 0}
+.maphd .k{font:12px var(--f-mono);color:var(--sc);font-weight:600}
+.maphd h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(20px,2.5vw,28px);line-height:1.1;text-wrap:balance}
+.maphd h2.swap{animation:titleIn .45s ease}
+@keyframes titleIn{from{opacity:0;transform:translateX(-14px)}}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--surface-2)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--ink-2);transition:background .25s,color .25s}
+.seg button[aria-pressed="true"]{background:var(--sc);color:var(--on-sec)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.mapwrap{position:relative}
+#map{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
+#map:active{cursor:grabbing}
+#map .m{stroke:var(--muni-stroke);stroke-width:.35;vector-effect:non-scaling-stroke}
+#map .m:hover{stroke:var(--ink);stroke-width:1.4}
+#map .m.sel{stroke:var(--accent-2);stroke-width:2.6}
+#map .h{fill:none;stroke:var(--herr-stroke);stroke-width:1.3;vector-effect:non-scaling-stroke;pointer-events:none;stroke-opacity:.85}
+#map .h.sel{stroke:var(--accent-2);stroke-width:3.2;stroke-opacity:1}
+#map .h.pulse{animation:pulse 1.6s ease-out}
+@keyframes pulse{0%{stroke:var(--accent-2);stroke-width:7}100%{stroke-width:1.3}}
+#map .b{stroke:var(--surface);stroke-width:.8;vector-effect:non-scaling-stroke;fill-opacity:.88;pointer-events:none}
+#map .city circle{fill:var(--ink)}
+#map .city text{font:700 12px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+#map .ripple{fill:none;stroke:var(--accent-2);vector-effect:non-scaling-stroke;pointer-events:none}
+/* odometer year */
+.odo{position:absolute;left:16px;bottom:6px;font-family:var(--f-display);font-weight:800;font-size:clamp(52px,8.5vw,112px);line-height:1;letter-spacing:-.04em;color:var(--sc);opacity:.9;pointer-events:none;display:flex;font-variant-numeric:tabular-nums;transition:color .4s}
+.odo .d{height:1em;overflow:hidden;display:inline-block}
+.odo .col{display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.2,.9,.25,1.15)}
+.odo .col span{height:1em;display:block}
+@media (max-width:640px){.odo{font-size:44px;bottom:2px}.evcard{padding:8px 10px}.evcard p{display:none}.evcard h4{font-size:16px}}
+.zoom{position:absolute;right:12px;top:12px;display:grid;gap:4px}
+.zoom button{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:18px;line-height:1}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 11px;font-size:13px;line-height:1.35;max-width:240px;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .12s;z-index:3}
+.tip b{font-family:var(--f-display);font-size:15px}
+.tip .v{font:600 14px var(--f-mono)}
+.evcard{position:absolute;left:14px;top:10px;max-width:min(360px,calc(100% - 70px));background:var(--console);color:var(--console-ink);border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);border-left:5px solid var(--accent-2);animation:evIn .55s cubic-bezier(.2,.9,.25,1.1);z-index:2}
+.evcard.out{animation:evOut .4s ease forwards}
+@keyframes evIn{from{opacity:0;transform:translateX(-40px) scale(.96)}}
+@keyframes evOut{to{opacity:0;transform:translateY(-12px)}}
+.evcard .k{font:600 11px var(--f-mono);color:var(--accent-2);letter-spacing:.06em}
+.evcard h4{margin:2px 0 4px;font-family:var(--f-display);font-size:19px;line-height:1.15}
+.evcard p{margin:0 0 8px;font-size:13.5px;opacity:.88}
+.evcard button{border:0;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;background:var(--accent-2);color:#1a0e03}
+.legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:6px 16px 6px;font-size:12px;color:var(--ink-2)}
+.legend svg{display:block;max-width:100%}
+.legend text{font:11px var(--f-mono);fill:var(--ink-3)}
+.mapnote{font-size:12px;color:var(--ink-3);padding:0 16px 12px}
+
+.side{display:grid;gap:12px}
+.panel{padding:14px 16px}
+.panel h3{margin:0 0 6px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.bignum{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,4vw,46px);line-height:1;color:var(--sc);transition:color .4s}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:12px;border-radius:999px;padding:2px 9px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.tag b{color:var(--ink)}
+.ptext{font-size:14px;color:var(--ink-2);margin:10px 0 0}
+.selcard .nm{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1.1}
+.selcard .sub{font-size:12px;color:var(--ink-3)}
+.selcard .val{font:600 20px var(--f-mono);margin-top:4px}
+.spark{width:100%;height:auto;display:block;margin-top:6px}
+.spark text{font:10.5px var(--f-mono);fill:var(--ink-3)}
+.hint{font-size:13px;color:var(--ink-3);margin:0}
+.race{position:relative}
+.race .r{position:absolute;left:0;right:0;height:26px;display:grid;grid-template-columns:minmax(0,118px) 1fr 82px;gap:8px;align-items:center;font-size:13px;transition:top .6s cubic-bezier(.3,.8,.3,1);cursor:pointer;border:0;background:transparent;padding:0;text-align:left}
+.race .r .bar{height:14px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.race .r .bar i{display:block;height:100%;background:var(--sc);border-radius:4px;transition:width .6s cubic-bezier(.3,.8,.3,1),background .4s}
+.race .r.on{font-weight:700}
+.race .r.on .bar i{background:var(--accent-2)}
+.race .r .v{font:12px var(--f-mono);color:var(--ink-2);text-align:right}
+.race .r .pos{font:600 11px var(--f-mono);color:var(--ink-3);margin-right:4px}
+.nmx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cols ol{margin:0;padding-left:18px;font-size:13px;display:grid;gap:2px}
+.cols li button{border:0;background:transparent;padding:0;text-align:left;font-size:13px;color:var(--ink)}
+.cols li button:hover{text-decoration:underline}
+.cols li span{font:12px var(--f-mono);color:var(--ink-3)}
+.fade{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}}
+
+/* player dock — under map and charts, stays reachable while scrolling */
+.dock{position:sticky;bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:20;margin-top:16px;background:var(--console);color:var(--console-ink);border-radius:20px;padding:12px clamp(12px,2vw,20px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;box-shadow:0 14px 34px rgba(5,25,30,.28)}
+@media (max-width:720px){.dock{grid-template-columns:auto minmax(0,1fr);gap:6px 12px;padding:8px 12px}.dock .dright{grid-column:1/-1}.ctrls #prev,.ctrls #next{display:none}.ctrls .play{width:46px;height:46px;font-size:17px}.track{padding-top:26px}}
+.ctrls{display:flex;gap:6px;align-items:center}
+.ctrls button{border:1.5px solid var(--console-2);background:var(--console-2);color:var(--console-ink);border-radius:999px;padding:8px 12px;font-weight:700;font-size:14px}
+.ctrls .play{width:58px;height:58px;border-radius:50%;padding:0;background:var(--accent-2);border-color:var(--accent-2);color:#1a0e03;font-size:20px;display:grid;place-items:center;position:relative}
+.ctrls .play.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent-2);animation:ring 1.4s ease-out infinite}
+@keyframes ring{from{opacity:.9;transform:scale(.9)}to{opacity:0;transform:scale(1.25)}}
+.tl{min-width:0}
+.track{position:relative;padding-top:30px}
+.track input{width:100%;accent-color:var(--accent-2);margin:0}
+.ev{position:absolute;top:0;transform:translateX(-50%);border:0;background:transparent;color:var(--console-ink);font:600 11px var(--f-mono);padding:0;display:grid;justify-items:center;gap:3px}
+.ev b{width:13px;height:13px;transform:rotate(45deg);background:var(--console-2);border:2px solid var(--accent-2);display:block;transition:background .3s,transform .3s}
+.ev.found b{background:var(--accent-2);transform:rotate(45deg) scale(1.15)}
+.ticks{display:flex;justify-content:space-between;font:11px var(--f-mono);opacity:.55;margin-top:2px}
+.dright{display:grid;gap:4px;justify-items:end;text-align:right}
+@media (max-width:720px){.dright{justify-items:start;text-align:left;grid-auto-flow:column;align-items:center;justify-content:space-between}.speed{padding:2px 10px;font-size:12px}}
+.found{font-size:12.5px;opacity:.85}
+.found .gem{color:var(--accent-2);display:inline-block;animation:pop .5s}
+@keyframes pop{from{transform:scale(2.2);opacity:0}}
+.speed{border:1.5px solid var(--console-2);background:transparent;color:var(--console-ink);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700}
+footer{font-size:12px;color:var(--ink-3);margin-top:16px;max-width:110ch}
+footer code{font-family:var(--f-mono)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== Sober institutional layer: observatory report look — serif headings, hairlines, square corners, muted palette ===== */
+:root{
+  --bg:#f5f6f6; --surface:#ffffff; --surface-2:#f2f4f4; --ink:#1b262b; --ink-2:#4d5b61; --ink-3:#808d92; --line:#d8dee0;
+  --accent:#b3631f; --accent-2:#c9772c; --accent-soft:#f6ebe1;
+  --c-demo:#2d6a80; --c-eko:#99582a; --c-giz:#55507f; --c-ing:#4a7342; --c-kul:#7f4766;
+  --ramp-lo:#f1f3f3; --map-empty:#e7ebec; --herr-stroke:#1b262b;
+  --console:#1f2b30; --console-2:#2e3d43; --up:#2d6a80; --down:#b04a35;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111719; --surface:#171f22; --surface-2:#1c2629; --ink:#e3e8e9; --ink-2:#a3b0b4; --ink-3:#77868b; --line:#2a3639;
+  --accent:#d9944f; --accent-2:#d9944f; --accent-soft:#2e241b;
+  --c-demo:#6aa3b8; --c-eko:#d0915c; --c-giz:#9b95c8; --c-ing:#87b07c; --c-kul:#c28aa8;
+  --ramp-lo:#1d272a; --map-empty:#1e2729; --herr-stroke:#e3e8e9; --console:#0d1416; --console-2:#243034; --up:#6aa3b8; --down:#d77a63}}
+:root[data-theme="dark"]{
+  --bg:#111719; --surface:#171f22; --surface-2:#1c2629; --ink:#e3e8e9; --ink-2:#a3b0b4; --ink-3:#77868b; --line:#2a3639;
+  --accent:#d9944f; --accent-2:#d9944f; --accent-soft:#2e241b;
+  --c-demo:#6aa3b8; --c-eko:#d0915c; --c-giz:#9b95c8; --c-ing:#87b07c; --c-kul:#c28aa8;
+  --ramp-lo:#1d272a; --map-empty:#1e2729; --herr-stroke:#e3e8e9; --console:#0d1416; --console-2:#243034; --up:#6aa3b8; --down:#d77a63}
+body{font-size:15px}
+header{border-bottom:1px solid var(--line);padding-block:24px 18px;margin-bottom:8px}
+.brand .ttl{border-left:1px solid var(--line)}
+.brand .ttl .big{font-weight:600;letter-spacing:-.01em}
+.brand .ttl .big em{color:var(--ink-3);font-weight:500}
+.brand small{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.fict{border-radius:3px;background:transparent;border:1px solid var(--line);font-size:11.5px}
+.lang{border-radius:4px}.lang button{border-radius:3px}
+/* section tabs */
+.picker{margin-block:4px 16px;gap:0}
+.dial{gap:0;border-bottom:1px solid var(--line)}
+.dial button{border:0;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:0;background:transparent;padding:10px 18px 10px 0;margin-right:18px;font-weight:500;color:var(--ink-2)}
+.dial button .c{width:auto;height:auto;background:none;color:var(--sc);font:500 12px var(--f-mono)}
+.dial button[aria-pressed="true"]{background:transparent;color:var(--ink);border-bottom-color:var(--sc)}
+.dial button[aria-pressed="true"] .c{background:none;color:var(--sc)}
+.pinleg{margin-left:auto}
+.chips{padding-top:12px;gap:4px}
+.chips button{border-radius:3px;border-color:var(--line);font-size:12.5px;padding:4px 10px;animation:none}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chips button[aria-pressed="true"] .cd{opacity:.7}
+.pin{width:6px;height:6px}
+/* cards */
+.card{border-radius:4px}
+.mapcard{border:1px solid var(--line);border-top:3px solid var(--sc)}
+.maphd{padding:14px 18px 0}
+.maphd .k{font-weight:500;letter-spacing:.04em}
+.maphd h2{font-weight:600;font-size:clamp(20px,2.3vw,26px)}
+.seg{border-radius:4px;padding:2px;border-width:1px}
+.seg button{border-radius:3px;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.zoom button{border-radius:4px;border-width:1px;font-weight:500}
+#map .h{stroke-width:1;stroke-opacity:.75}
+#map .city text{font:600 11px var(--f-body)}
+.odo{font-family:var(--f-display);font-weight:600;color:var(--ink);opacity:.13;letter-spacing:-.02em;font-size:clamp(56px,9vw,120px)}
+.evcard{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.evcard .k{color:var(--accent);font-weight:500}
+.evcard h4{font-weight:600}
+.evcard p{opacity:1;color:var(--ink-2)}
+.evcard button{background:transparent;color:var(--accent);padding:0;border-radius:0;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.tip{border-radius:3px}
+.panel{padding:16px 18px}
+.panel h3{letter-spacing:.09em;font-weight:600}
+.bignum{font-weight:600;color:var(--ink)}
+.tag{border-radius:3px}
+.selcard .nm{font-weight:600}
+.race .r .bar{height:9px;border-radius:1px}.race .r .bar i{border-radius:1px}
+.race .r.on .bar i{background:var(--accent)}
+/* dock */
+.dock{border-radius:6px;box-shadow:0 8px 24px rgba(10,20,25,.18);padding:10px 16px}
+.ctrls button{border-radius:4px;font-weight:500;font-size:13px}
+.ctrls .play{width:44px;height:44px;border-radius:4px;font-size:16px;background:var(--surface);border-color:var(--surface);color:var(--ink)}
+.ctrls .play.on::after{display:none}
+.ctrls .play.on{background:var(--accent-2);border-color:var(--accent-2);color:#1a0e03}
+.speed{border-radius:4px;font-weight:500}
+.ev b{width:10px;height:10px;border-width:1.5px}
+footer{border-top:1px solid var(--line);padding-top:12px}
+
+/* ===== Gaindegia brand palette: logo blue #3B9BC0 + logo orange #E3892B, everything else derived from them ===== */
+:root{
+  --brand-blue:#3b9bc0; --brand-orange:#e3892b;
+  --bg:#f4f7f8; --surface:#ffffff; --surface-2:#eef4f6; --ink:#15313c; --ink-2:#47616b; --ink-3:#7f959d; --line:#d5e1e5;
+  --accent:#cf7419; --accent-2:#e3892b; --accent-soft:#fbeedd; --on-accent:#ffffff;
+  --c-demo:#2b87ad; --c-eko:#d47a1f; --c-giz:#1c5a74; --c-ing:#93561a; --c-kul:#8e3b6b; --on-sec:#ffffff;
+  --ramp-lo:#eef5f7; --map-empty:#e4edf0; --herr-stroke:#15313c;
+  --up:#2b87ad; --down:#d47a1f; --eu:#8aa0a8;
+  --console:#123a4a; --console-ink:#e9f3f6; --console-2:#1d5064;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1a20; --surface:#122329; --surface-2:#172c34; --ink:#e3eef2; --ink-2:#a2bac2; --ink-3:#71909a; --line:#23404b;
+  --accent:#eb9a4c; --accent-2:#eb9a4c; --accent-soft:#33230f; --on-accent:#1a0e03;
+  --c-demo:#5db4d8; --c-eko:#ec9a4f; --c-giz:#9cd0e4; --c-ing:#d9a46c; --c-kul:#e08ab8; --on-sec:#0b1a1e;
+  --ramp-lo:#16292f; --map-empty:#17292f; --herr-stroke:#e3eef2;
+  --up:#5db4d8; --down:#ec9a4f; --eu:#7f969e;
+  --console:#0a2530; --console-ink:#e9f3f6; --console-2:#173f4f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1a20; --surface:#122329; --surface-2:#172c34; --ink:#e3eef2; --ink-2:#a2bac2; --ink-3:#71909a; --line:#23404b;
+  --accent:#eb9a4c; --accent-2:#eb9a4c; --accent-soft:#33230f; --on-accent:#1a0e03;
+  --c-demo:#5db4d8; --c-eko:#ec9a4f; --c-giz:#9cd0e4; --c-ing:#d9a46c; --c-kul:#e08ab8; --on-sec:#0b1a1e;
+  --ramp-lo:#16292f; --map-empty:#17292f; --herr-stroke:#e3eef2;
+  --up:#5db4d8; --down:#ec9a4f; --eu:#7f969e;
+  --console:#0a2530; --console-ink:#e9f3f6; --console-2:#173f4f; color-scheme:dark}
+header{border-bottom:0;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--brand-blue) 0 72%,var(--brand-orange) 72% 100%)}
+.brand .ttl{border-left:3px solid var(--brand-orange)}
+.brand .ttl .big{color:var(--ink)}
+.brand .ttl .big em{color:var(--brand-blue);font-weight:600}
+.brand small{color:var(--ink-2)}
+.fict{border-color:var(--accent-soft);background:var(--accent-soft)}
+.fict b{color:var(--accent)}
+.lang button[aria-pressed="true"]{background:var(--brand-blue);color:#fff}
+.chips button[aria-pressed="true"]{background:var(--sc);border-color:var(--sc);color:var(--on-sec)}
+.seg button[aria-pressed="true"]{background:var(--sc);color:var(--on-sec)}
+.pin{background:var(--brand-orange)}
+.odo{color:var(--brand-blue);opacity:.18}
+.bignum{color:var(--sc)}
+.evcard{border-left-color:var(--brand-orange)}
+.race .r.on .bar i{background:var(--brand-orange)}
+.ctrls .play.on{background:var(--brand-orange);border-color:var(--brand-orange)}
+.track input{accent-color:var(--brand-orange)}
+.ev b{border-color:var(--brand-orange)}
+.ev.found b{background:var(--brand-orange)}
+#map .m.sel,#map .h.sel{stroke:var(--brand-orange)}
+#map .ripple{stroke:var(--brand-orange)}
+footer{border-top-color:var(--line)}
+
+/* ---- Europa ---- */
+.euhead{margin:34px 0 12px;border-top:3px solid var(--accent-2);padding-top:16px}
+.euhead h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(24px,3vw,34px);line-height:1.1}
+.euhead p{margin:6px 0 0;color:var(--ink-2);max-width:70ch}
+#eumap{width:100%;height:auto;display:block;touch-action:none;cursor:grab;background:var(--surface-2)}
+#eumap .eu{stroke:var(--surface);stroke-width:.6;vector-effect:non-scaling-stroke;cursor:pointer}
+#eumap .eu:hover{stroke:var(--ink);stroke-width:1.4}
+#eumap .eu.sel{stroke:var(--ink);stroke-width:2.4}
+#eumap .ehline{fill:none;stroke:var(--accent-2);stroke-width:2.6;vector-effect:non-scaling-stroke}
+.eunone{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:24px;text-align:center;background:color-mix(in srgb,var(--surface) 82%,transparent);backdrop-filter:blur(2px)}
+.eunone p{margin:0;font-weight:700;color:var(--ink)}
+.eunone .chips{justify-content:center;max-width:620px}
+.eunone .chips button{border:1.5px solid var(--sc);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
+.eunone .chips .cd{font:600 10.5px var(--f-mono);color:var(--sc);margin-right:5px}
+.eulist{list-style:none;margin:0;padding:0 4px 0 0;max-height:430px;overflow:auto;display:grid;gap:2px}
+.eulist li{display:grid;grid-template-columns:30px minmax(0,140px) 1fr 74px;gap:6px;align-items:center;font-size:12.5px;padding:2px 4px;border-radius:6px;cursor:pointer}
+.eulist li:hover{background:var(--surface-2)}
+.eulist .pos{font:600 11px var(--f-mono);color:var(--ink-3)}
+.eulist .nmx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eulist .bar{height:10px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.eulist .bar i{display:block;height:100%;background:var(--sc);opacity:.75;border-radius:3px}
+.eulist .v{font:11.5px var(--f-mono);color:var(--ink-2);text-align:right}
+.eulist li.nb{background:color-mix(in srgb,var(--sc) 8%,transparent)}
+.eulist li.eh{background:var(--accent-soft);font-weight:800}
+.eulist li.eh .bar i{background:var(--accent-2);opacity:1}
+.eulist li.on{outline:2px solid var(--ink);outline-offset:-2px}
+.eusel{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-size:13px}
+.eusel .num{font-family:var(--f-mono)}
+
+/* ---- ikuspegia + konparaketa ---- */
+.viewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.vtabs{display:inline-flex;background:var(--surface-2);border:1.5px solid var(--line);border-radius:999px;padding:4px;gap:2px}
+.vtabs button{border:0;background:transparent;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;color:var(--ink-2);transition:background .25s,color .25s}
+.vtabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.vtabs button.noeu{opacity:.55}
+.cmpbtn{border:2px solid var(--accent-2);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 16px;font-weight:800;font-size:14px;display:inline-flex;gap:8px;align-items:center;transition:background .2s,color .2s}
+.cmpbtn[aria-pressed="true"]{background:var(--accent-2);color:#1a0e03}
+.cmpcard{margin-top:16px;border:2px solid var(--accent-2)}
+.cmphd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:14px 16px 6px}
+.cmphd .k{font:12px var(--f-mono);color:var(--accent);font-weight:600}
+.cmpt{margin:2px 0 0;font-family:var(--f-display);font-weight:800;font-size:clamp(18px,2.2vw,24px);letter-spacing:0;text-transform:none;color:var(--ink)}
+.cmpctl{display:flex;gap:8px;align-items:center}
+.cmpsearch{position:relative}
+.cmpsearch input{width:min(320px,70vw);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px}
+.cmpsearch ul{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:300px;overflow:auto}
+.cmpsearch li{padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13.5px}
+.cmpsearch li small{color:var(--ink-3);margin-left:4px}
+.cmpsearch li.act,.cmpsearch li:hover{background:var(--surface-2)}
+.cmpsearch li.in{font-weight:700}
+.cmpsearch li.in::after{content:" ✓";color:var(--accent)}
+.cmpsearch li.none{color:var(--ink-3);cursor:default}
+.cmpclear{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--ink-2)}
+.cmpchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 16px 10px}
+.cchip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--cc);border-radius:999px;padding:3px 4px 3px 10px;font-size:13px;font-weight:700;background:color-mix(in srgb,var(--cc) 10%,var(--surface))}
+.cchip i{width:9px;height:9px;border-radius:50%;background:var(--cc)}
+.cchip small{font-weight:500;color:var(--ink-3)}
+.cchip button{border:0;background:transparent;width:22px;height:22px;border-radius:50%;font-size:16px;line-height:1;color:var(--ink-2)}
+.cchip button:hover{background:var(--surface-2)}
+.cmpmsg{margin:0 16px 8px;font-size:13px;color:var(--down);font-weight:700}
+.cmpbody{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:16px;padding:0 16px 16px}
+@media (max-width:980px){.cmpbody{grid-template-columns:1fr}}
+.cmpchart{position:relative}
+.cmpsvg{width:100%;height:auto;display:block}
+.cmpsvg text{font:11px var(--f-mono);fill:var(--ink-3)}
+.cmptip{transform:translate(-50%,calc(-100% - 14px));max-width:280px}
+.cmptip div{display:flex;align-items:center;gap:6px;font-size:12.5px}
+.cmptip div i{width:8px;height:8px;border-radius:50%;flex:none}
+.cmptip .v{margin-left:auto;padding-left:10px}
+.cmpbars h3{margin:0 0 6px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.cmpbars ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.cmpbars li{display:grid;grid-template-columns:24px minmax(0,130px) 1fr 92px;gap:6px;align-items:center;font-size:13px}
+.cmpbars .pos{font:600 11px var(--f-mono);color:var(--ink-3)}
+.cmpbars .nmx{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmpbars .nmx i{width:9px;height:9px;border-radius:50%;flex:none}
+.cmpbars .bar{height:12px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.cmpbars .bar i{display:block;height:100%;border-radius:3px;transition:width .5s}
+.cmpbars .v{font:12px var(--f-mono);color:var(--ink-2);text-align:right}
+.cmpbars .v small{color:var(--ink-3)}
+
+/* konparaketa eskuineko zutabean */
+.stage>.cmpcard{margin-top:0;align-self:start}
+.stage>.cmpcard .cmphd{display:grid;gap:10px;align-items:start}
+.stage>.cmpcard .cmpctl{width:100%}
+.stage>.cmpcard .cmpsearch{flex:1}
+.stage>.cmpcard .cmpsearch input{width:100%}
+.stage>.cmpcard .cmpbody{grid-template-columns:1fr;gap:12px}
+.stage>.cmpcard .cmpchips{padding-bottom:6px}
+.stage>.cmpcard .cchip{font-size:12px}
+.stage>.cmpcard .cmpbars li{grid-template-columns:22px minmax(0,120px) 1fr 86px}
+
+/* ---- adierazle-menua taldeen gainean ---- */
+.dial{overflow:visible;position:relative;z-index:35}
+.dial .grp{position:relative;display:flex;align-items:center}
+.dial .grp .gbtn .car{font-size:10px;margin-left:4px;opacity:.55;transition:transform .2s}
+.dial .grp.open .gbtn .car,.dial .grp:not(.nohover):hover .gbtn .car{transform:rotate(180deg)}
+.dial .gsel{display:inline-flex;align-items:center;gap:6px;margin:0 22px 0 -10px;padding:4px 11px;border-radius:999px;background:var(--sc);color:var(--on-sec);font-size:13px;font-weight:700;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;animation:chipIn .3s backwards}
+.dial .gsel .cd{font:600 11px var(--f-mono);opacity:.8}
+.dial .gsel .pin{background:var(--on-sec)}
+.dial .gmenu{position:absolute;left:0;top:100%;z-index:40;display:none;width:max-content;min-width:260px;max-width:min(560px,92vw);grid-template-columns:repeat(2,minmax(200px,1fr));gap:2px;padding:8px;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--sc);border-radius:0 0 12px 12px;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.dial .grp:not(.nohover):hover .gmenu,.dial .grp.open .gmenu,.dial .grp:focus-within:not(.nohover) .gmenu{display:grid}
+.dial .gmenu .mi{display:flex;align-items:center;gap:8px;margin:0;padding:7px 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font-size:13.5px;font-weight:500;text-align:left;white-space:nowrap;transform:none}
+.dial .gmenu .mi:hover,.dial .gmenu .mi:focus-visible{background:var(--surface-2)}
+.dial .gmenu .mi[aria-checked="true"]{background:color-mix(in srgb,var(--sc) 15%,var(--surface));font-weight:800}
+.dial .gmenu .mi .cd{font:600 11px var(--f-mono);color:var(--sc);min-width:28px}
+.dial .gmenu .mi .mn{overflow:hidden;text-overflow:ellipsis}
+.dial .gmenu .mi .pin{margin-left:auto}
+@media (max-width:640px){.dial .gmenu{grid-template-columns:1fr;position:fixed;left:12px;right:12px;top:auto;max-width:none}.dial .gsel{max-width:150px}}
+
+/* ===== trinkoa: goiburu txikia, aukera guztiak lerro batean, denbora-lerro baxua ===== */
+header{padding-block:16px 11px!important;margin-bottom:6px!important;gap:12px}
+.brand{gap:20px}
+.brand .logo img{height:clamp(54px,5.2vw,74px)!important}
+.brand .ttl{padding-left:16px;gap:3px}
+.brand .ttl .big{font-size:clamp(22px,2.6vw,31px)!important}
+.brand small{font-size:12.5px!important}
+.hright{gap:8px}
+.fict{font-size:12px}
+.lang button{padding:5px 11px;font-size:12.5px}
+.picker{display:flex!important;align-items:center;gap:12px;margin-block:2px 12px!important;border-bottom:1px solid var(--line)}
+.picker .dial{flex:1 1 auto;min-width:0;border-bottom:0!important;flex-wrap:nowrap}
+.dial .gbtn{padding:9px 14px 9px 0!important;margin-right:12px!important;white-space:nowrap}
+.dial .gsel{margin:0 14px 0 -6px;font-size:12.5px;padding:3px 10px;max-width:220px}
+.picker .viewbar{margin:0;flex:none;gap:8px;flex-wrap:nowrap}
+.vtabs{padding:3px}
+.vtabs button{padding:5px 13px;font-size:13px}
+.cmpbtn{padding:5px 13px;font-size:13px;border-width:1.5px;white-space:nowrap}
+.dial .gmenu .pinleg{grid-column:1/-1;margin:4px 0 0;padding:6px 10px 2px;border-top:1px solid var(--line);font-size:11.5px}
+@media (max-width:1100px){.picker{flex-wrap:wrap}.picker .dial{flex-wrap:wrap}.picker .viewbar{margin-left:auto;padding-bottom:6px}}
+/* timeline */
+.dock{padding:5px 14px!important;gap:6px 16px;margin-top:10px;border-radius:10px}
+.ctrls button{padding:5px 9px;font-size:12px}
+.ctrls .play{width:34px!important;height:34px!important;font-size:13px!important}
+.track{padding-top:17px}
+.ev{font-size:10px;gap:1px}
+.ev b{width:8px!important;height:8px!important}
+.ticks{font-size:10px;margin-top:0}
+.speed{padding:3px 10px;font-size:12px}
+.found{font-size:11.5px}
+.dock .dright{display:flex;gap:10px;align-items:center}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="brand"><h1 class="logo"><img src="gaindegia-logo.png" alt="Gaindegia" width="560" height="220"></h1><div class="ttl"><span class="big">Adierazle galeria <em>2004-2025</em></span><small data-t="sub"></small></div></div>
+  <div class="hright"><span class="fict" data-t="fict"></span>
+    <div class="lang" role="group" aria-label="Hizkuntza / Idioma"><button type="button" data-lang="eu">EU</button><button type="button" data-lang="es">ES</button></div></div>
+</header>
+
+<section class="picker">
+  <div class="dial" id="dial"></div>
+  <div class="viewbar" id="vbar"><div class="vtabs" id="vtabs" role="tablist"><button type="button" role="tab" data-v="eh"></button><button type="button" role="tab" data-v="eu"></button></div>
+  <button type="button" class="cmpbtn" id="cmpbtn" aria-pressed="false"></button></div>
+  <div class="chips" id="chips" hidden></div>
+</section>
+
+<section class="stage" id="ehstage">
+  <div class="card mapcard" id="mapcard">
+    <div class="maphd">
+      <div><div class="k" id="mk"></div><h2 id="mtitle"></h2></div>
+      <div class="seg" role="group" id="level"><button type="button" data-l="h"></button><button type="button" data-l="u"></button></div>
+    </div>
+    <div class="mapwrap" id="mapwrap">
+      <svg id="map" viewBox="0 0 900 640" role="img"></svg>
+      <div class="odo" id="odo" aria-hidden="true"></div>
+      <div id="evslot"></div>
+      <div class="zoom"><button type="button" id="zin" aria-label="+">+</button><button type="button" id="zout" aria-label="−">−</button><button type="button" id="zreset" aria-label="Reset" style="font-size:13px">⤢</button></div>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="mapnote" id="mapnote"></div>
+  </div>
+  <aside class="side" id="side">
+    <div class="card panel" id="pnum"></div>
+    <div class="card panel selcard" id="psel"></div>
+    <div class="card panel" id="prank"></div>
+    <div class="card panel" id="ptop" hidden></div>
+  </aside>
+</section>
+
+<section class="stage eustage" id="eustage">
+  <div class="card mapcard" id="eucard">
+    <div class="maphd">
+      <div><div class="k" id="euk"></div><h2 id="eutitle"></h2></div>
+      <div class="seg" role="group" id="eulevel"><button type="button" data-l="s"></button><button type="button" data-l="r"></button></div>
+    </div>
+    <div class="mapwrap" id="euwrap">
+      <svg id="eumap" viewBox="0 0 900 640" role="img" aria-label="Europa"></svg>
+      <div class="eunone" id="eunone" hidden></div>
+      <div class="zoom"><button type="button" id="euzin" aria-label="+">+</button><button type="button" id="euzout" aria-label="−">−</button><button type="button" id="euzeh" aria-label="Euskal Herria" title="Euskal Herria" style="font-size:12px;font-weight:800">EH</button><button type="button" id="euzreset" aria-label="Reset" style="font-size:13px">⤢</button></div>
+      <div class="tip" id="eutip"></div>
+    </div>
+    <div class="legend" id="eulegend"></div>
+    <div class="mapnote" id="eunote"></div>
+  </div>
+  <aside class="side" id="euside">
+    <div class="card panel" id="eunum"></div>
+    <div class="card panel" id="eurank"></div>
+  </aside>
+</section>
+
+<section class="card cmpcard" id="cmp" hidden aria-live="polite"></section>
+
+<section class="dock" aria-label="Denbora-makina">
+  <div class="ctrls">
+    <button type="button" id="prev" aria-label="−1">◀</button>
+    <button type="button" class="play" id="play" aria-label="Play">▶</button>
+    <button type="button" id="next" aria-label="+1">▶</button>
+  </div>
+  <div class="tl">
+    <div class="track" id="track"><input id="range" type="range" min="2004" max="2025" step="1" value="2004" aria-label="Urtea"></div>
+    <div class="ticks"><span>2004</span><span>2009</span><span>2014</span><span>2019</span><span>2024</span></div>
+  </div>
+  <div class="dright"><button type="button" class="speed" id="speed"></button><div class="found" id="found"></div></div>
+</section>
+<footer data-t="foot"></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="data.js"></script>
+<script src="udal.js"></script>
+<script src="geo.js"></script>
+<script src="europa.js"></script>
+<script>
+(function(){
+const D=window.GAINDEGIA_DATA, U=window.GAINDEGIA_UDAL, G=window.GAINDEGIA_GEO;
+const Y0=D.meta.years[0], Y1=D.meta.years[1], YEARS=d3.range(Y0,Y1+1), IDS=Object.keys(D.indicators), IND=id=>D.indicators[id];
+const MUNI=new Set(Object.keys(U.ind));
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const dur=ms=>RM?0:ms;
+let LANG='eu'; try{LANG=localStorage.getItem('gj-lang')||'eu';}catch(e){}
+
+const T={
+ eu:{sub:"Euskal Herria · Denbora-makina", fict:"<b>Datu errealak</b> · Gaindegia DatuAtaria",
+  speed:"Abiadura", found:"Gertaerak", see:"Ikusi",
+  lvH:"Herrialdeak", lvU:"Udalerriak", lvNo:"Adierazle honek ez du udalerri mailako daturik",
+  eh:"Euskal Herria", heh:"Hego Euskal Herria*", since:y=>`${y}tik`, eu27:"EB27", sel:"Hautatutakoa", selHint:"Egin klik mapan herrialde edo udalerri batean haren bilakaera ikusteko.",
+  rank:"Herrialdeen lasterketa", rankR:"Lurraldeen lasterketa", top:"Gorenak", bottom:"Txikienak", darker:"Ilunagoa = balio handiagoa", popLeg:y=>`Zirkulua = biztanleak · kolorea = aldaketa ${y}tik`,
+  munis:"udalerri", pinLeg:"udalerri mailako mapa", nodata:"Daturik ez", dataYear:y=>`${y}ko datua`, agg:a=>`${a}ren balioa`, src:"Iturria: DatuAtaria ↗",
+  noteU:"Udalerriak: Gaindegiaren DatuAtariko udal datuak; mugak INE eta IGN. Urte batean daturik ez badago, aurreko azken datua erakusten da.", noteH:"Herrialde mailako balioak; herrialdeko daturik ez dagoenean, EAE edo Ipar Euskal Herriko balioa (marraz). Urte batean daturik ez badago, aurreko azken datua.",
+  foot:"Prototipoa Gaindegiarentzat. Datuak: Gaindegia, DatuAtaria (datutegia.gaindegia.eus), 2026-11-12an deskargatuak; 50 adierazle. Euskal Herria* = Hego Euskal Herria (EAE + Nafarroa Garaia). Mapak: es-atlas (INE) eta france-geojson (IGN). Teklatua: zuriunea = play, geziak = urtea.",
+  zoom:"Zooma: gurpila edo hatzak", inhab:"biztanle", event:"Gertaera"},
+ es:{sub:"Euskal Herria · Máquina del tiempo", fict:"<b>Datos reales</b> · DatuAtaria de Gaindegia",
+  speed:"Velocidad", found:"Acontecimientos", see:"Ver",
+  lvH:"Territorios", lvU:"Municipios", lvNo:"Este indicador no tiene datos municipales",
+  eh:"Euskal Herria", heh:"Hego Euskal Herria*", since:y=>`desde ${y}`, eu27:"UE27", sel:"Selección", selHint:"Pulsa en el mapa un territorio o municipio para ver su evolución.",
+  rank:"Carrera de territorios", rankR:"Carrera de territorios", top:"Más altos", bottom:"Más bajos", darker:"Más oscuro = valor más alto", popLeg:y=>`Círculo = habitantes · color = cambio desde ${y}`,
+  munis:"municipios", pinLeg:"mapa municipal", nodata:"Sin datos", dataYear:y=>`dato de ${y}`, agg:a=>`valor de ${a}`, src:"Fuente: DatuAtaria ↗",
+  noteU:"Municipios: datos municipales de DatuAtaria de Gaindegia; límites INE e IGN. Si un año no tiene dato, se muestra el último disponible.", noteH:"Valores por territorio; si un territorio no tiene dato propio, se usa el de la CAV o Iparralde (rayado). Si un año no tiene dato, se muestra el último disponible.",
+  foot:"Prototipo para Gaindegia. Datos: Gaindegia, DatuAtaria (datutegia.gaindegia.eus), descargados el 12-11-2026; 50 indicadores. Euskal Herria* = Hego Euskal Herria (CAV + Navarra). Mapas: es-atlas (INE) y france-geojson (IGN). Teclado: espacio = play, flechas = año.",
+  zoom:"Zoom: rueda o dedos", inhab:"habitantes", event:"Acontecimiento"}};
+const t=(k,...a)=>{const v=T[LANG][k]??T.eu[k]??k; return typeof v==='function'?v(...a):v;};
+const nm=o=>(o&&(o[LANG]||o.eu))||'';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const short=id=>nm(IND(id).short)||nm(IND(id).name);
+const ok=v=>v!=null&&!isNaN(v);
+const fmtN=(v,d)=>{try{return new Intl.NumberFormat('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:'always'}).format(v);}catch(e){return (+v).toFixed(d);}};
+function fmtV(v,ind,dOver){ if(!ok(v)) return '–'; const u=ind.unit, n=fmtN(v,dOver??ind.decimals);
+  if(u==='%'||u==='‰') return LANG==='eu'?u+n:n+' '+u; if(u==='biz/km²') return n+' '+(LANG==='eu'?'biz/km²':'hab/km²');
+  if(u==='% BPG') return LANG==='eu'?'%'+n:n+' % PIB'; if(u&&!['indizea','0-10'].includes(u)) return n+' '+u; return n; }
+const AREAS=D.areas, REGIONS=D.regions, PARENT=Object.fromEntries(AREAS.map(a=>[a.id,a.p]));
+const ALLA=[...AREAS,...REGIONS.filter(r=>!AREAS.find(a=>a.id===r.id))];
+const areaName=id=>id==='EH'?t('eh'):id==='HEH'?t('heh'):id==='EU27'?t('eu27'):nm((ALLA.find(a=>a.id===id)||{name:{eu:id}}).name);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---- values: exact, carried forward (last available ≤ year), and with regional fallback ---- */
+const hval=(id,h,y)=>{const s=IND(id).series[h]; return s?s[String(y)]:undefined;};
+function hlast(id,h,y){ const s=IND(id).series[h]; if(!s) return null; for(let yy=y;yy>=Y0;yy--){const v=s[String(yy)]; if(ok(v)) return {v,y:yy};} return null; }
+function areaVal(id,h,y){ const r=hlast(id,h,y); if(r) return {...r,src:h}; const p=PARENT[h]; if(p&&p!==h){const q=hlast(id,p,y); if(q) return {...q,src:p};} return null; }
+const firstYear=(id,h)=>{const s=IND(id).series[h]; if(!s) return null; const ys=Object.keys(s).map(Number).filter(y=>ok(s[y])); return ys.length?d3.min(ys):null;};
+const mainA=id=>IND(id).main;
+function raceAreas(id){ const s=IND(id).series, out=[];
+  [['EAE',['AR','BI','GI']],['NG',['NG']],['IEH',['LA','NB','ZU']]].forEach(([r,ch])=>{ const own=ch.filter(c=>s[c]); if(own.length===ch.length||!s[r]) own.forEach(c=>out.push(c)); else out.push(r); });
+  return out.map(x=>ALLA.find(a=>a.id===x)); }
+
+/* ---------------- state ---------------- */
+const S={ind:'biztanleria', sec:'demo', year:Y0, level:'u', sel:null, playing:false, timer:null, speed:1, found:{}, hold:false};
+const SPEEDS=[{ms:1200,l:'1×'},{ms:750,l:'2×'},{ms:420,l:'4×'}];
+
+/* ---------------- geometry ---------------- */
+const svg=d3.select('#map'), W=900, H=640;
+const muni=topojson.feature(G,G.objects.u).features, herr=topojson.feature(G,G.objects.h).features;
+const proj=d3.geoMercator().fitExtent([[18,18],[W-18,H-18]],{type:'FeatureCollection',features:muni});
+const path=d3.geoPath(proj);
+const UIDX=new Map(U.ids.map((id,i)=>[id,i]));
+muni.forEach(f=>{ f.i=UIDX.get(f.id); f.c=proj(d3.geoCentroid(f)); });
+const defs=svg.append('defs');
+const hatch=defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',6).attr('height',6).attr('patternTransform','rotate(45)');
+hatch.append('rect').attr('width',6).attr('height',6).attr('fill','transparent'); hatch.append('line').attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',6).attr('stroke','var(--surface)').attr('stroke-width',2).attr('opacity',.55);
+const root=svg.append('g');
+const gM=root.append('g'), gX=root.append('g').attr('pointer-events','none'), gH=root.append('g'), gB=root.append('g'), gR=root.append('g'), gC=root.append('g');
+const mpaths=gM.selectAll('path').data(muni).join('path').attr('class','m').attr('d',path).attr('fill',css('--map-empty'));
+const xpaths=gX.selectAll('path').data(herr).join('path').attr('d',path).attr('fill','url(#hatch)').attr('opacity',0);
+const hpaths=gH.selectAll('path').data(herr).join('path').attr('class','h').attr('d',path);
+const CITIES=['Bilbo','Donostia','Gasteiz','Iruñea','Baiona','Donapaleu','Maule-Lextarre'];
+gC.selectAll('g').data(muni.filter(f=>CITIES.includes(f.properties.n))).join('g').attr('class','city')
+  .attr('transform',f=>`translate(${f.c})`).call(g=>{g.append('circle').attr('r',2.6);g.append('text').attr('x',5).attr('y',-5).text(f=>f.properties.n==='Maule-Lextarre'?'Maule':f.properties.n);});
+let ZK=1;
+const zoom=d3.zoom().scaleExtent([1,10]).translateExtent([[0,0],[W,H]]).on('zoom',e=>{ZK=e.transform.k; root.attr('transform',e.transform); gC.selectAll('g').attr('transform',f=>`translate(${f.c}) scale(${1/ZK})`);});
+svg.call(zoom);
+d3.select('#zin').on('click',()=>svg.transition().duration(300).call(zoom.scaleBy,1.6));
+d3.select('#zout').on('click',()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.6));
+d3.select('#zreset').on('click',()=>svg.transition().duration(450).call(zoom.transform,d3.zoomIdentity));
+const sweepDelay=f=>(f.c[0]/W)*520+(f.c[1]/H)*140;
+
+/* ---------------- municipal values (carry forward) ---------------- */
+function mlast(id,i,y){ const s=U.ind[id]&&U.ind[id][i]; if(!s) return null; for(let k=y-Y0;k>=0;k--){ if(ok(s[k])) return {v:s[k],y:Y0+k}; } return null; }
+function mfirst(id,i){ const s=U.ind[id][i]; for(let k=0;k<s.length;k++) if(ok(s[k])) return {v:s[k],y:Y0+k}; return null; }
+
+/* ---------------- colour scale ---------------- */
+let SCALE=null;
+const useU=()=>S.level==='u'&&MUNI.has(S.ind);
+function buildScale(){
+  const lo=css('--ramp-lo'), hi=css('--c-'+IND(S.ind).section);
+  if(S.ind==='biztanleria'&&useU()){
+    SCALE={type:'bubble', r:d3.scaleSqrt().domain([0,d3.max(U.ind.biztanleria,s=>d3.max(s.filter(ok)))]).range([0,30]), c:d3.scaleDiverging(d3.piecewise(d3.interpolateRgb,[css('--down'),css('--ink-3'),css('--up')])).domain([-30,0,30]).clamp(true)};
+    return;
+  }
+  let vals=[];
+  if(useU()) U.ind[S.ind].forEach(s=>s.forEach(v=>vals.push(v)));
+  else ALLA.forEach(a=>YEARS.forEach(y=>vals.push(hval(S.ind,a.id,y))));
+  vals=vals.filter(ok).sort(d3.ascending);
+  if(!vals.length) vals=[0,1];
+  const interp=d3.interpolateLab(lo,hi);
+  if(S.ind==='dentsitatea'){ SCALE={type:'log', s:d3.scaleSequentialLog(interp).domain([Math.max(1,d3.quantile(vals,.02)),d3.quantile(vals,.995)]).clamp(true)}; return; }
+  let ext=[d3.quantile(vals,useU()?.01:0), d3.quantile(vals,useU()?.99:1)];
+  if(ext[0]===ext[1]) ext=[ext[0]-1,ext[1]+1];
+  if(ext[0]<0&&ext[1]>0){ const m=Math.max(-ext[0],ext[1]); SCALE={type:'div', s:d3.scaleDiverging(d3.piecewise(d3.interpolateRgb,[css('--down'),css('--ramp-lo'),css('--up')])).domain([-m,0,m]).clamp(true)}; return; }
+  SCALE={type:'lin', s:d3.scaleSequential(interp).domain(ext).clamp(true)};
+}
+const colorOf=v=>!ok(v)?css('--map-empty'):SCALE.s(v);
+const featVal=(f,y)=>{ if(useU()){ const r=f.i==null?null:mlast(S.ind,f.i,y); return r?r.v:null; } const r=areaVal(S.ind,f.properties.h,y); return r?r.v:null; };
+
+/* ---------------- map paint ---------------- */
+function paintMap(mode){
+  const y=S.year, d=mode==='sweep'?dur(650):mode==='year'?dur(Math.min(520,SPEEDS[S.speed].ms*.7)):0;
+  if(SCALE.type==='bubble'){
+    mpaths.interrupt().transition().duration(d).delay(f=>mode==='sweep'?dur(sweepDelay(f)):0).attr('fill',css('--map-empty'));
+    const data=muni.filter(f=>f.i!=null).map(f=>{const a=mlast('biztanleria',f.i,y), b=mfirst('biztanleria',f.i); return {f,p:a?a.v:0,p0:b?b.v:null};}).filter(d=>d.p>0).sort((a,b)=>b.p-a.p);
+    const cOf=d=>d.p0?SCALE.c((d.p/d.p0-1)*100):css('--ink-3');
+    const sel=gB.selectAll('circle').data(data,d=>d.f.id);
+    sel.exit().remove();
+    sel.enter().append('circle').attr('class','b').attr('cx',d=>d.f.c[0]).attr('cy',d=>d.f.c[1]).attr('r',0).attr('fill',cOf)
+      .transition().duration(dur(700)).delay(d=>dur(sweepDelay(d.f))).attr('r',d=>SCALE.r(d.p));
+    sel.interrupt().transition().duration(d||1).attr('r',d=>SCALE.r(d.p)).attr('fill',cOf);
+    xpaths.attr('opacity',0);
+  } else {
+    gB.selectAll('circle').interrupt().transition().duration(dur(300)).attr('r',0).remove();
+    mpaths.interrupt().transition().duration(d).delay(f=>mode==='sweep'?dur(sweepDelay(f)):0).attr('fill',f=>colorOf(featVal(f,y)));
+    xpaths.attr('opacity',f=>{ if(useU()) return 0; const r=areaVal(S.ind,f.properties.h,y); return r&&r.src!==f.properties.h?1:0; });
+  }
+  mpaths.classed('sel',f=>S.sel&&S.sel.type==='u'&&S.sel.id===f.id);
+  hpaths.classed('sel',f=>S.sel&&S.sel.type==='h'&&S.sel.id===f.id);
+}
+function ripple(){
+  if(RM) return;
+  const c=[W*.5,H*.42];
+  gR.append('circle').attr('class','ripple').attr('cx',c[0]).attr('cy',c[1]).attr('r',10).attr('stroke-width',1.5).attr('opacity',.6)
+    .transition().duration(1300).ease(d3.easeCubicOut).attr('r',420).attr('opacity',0).attr('stroke-width',.5).remove();
+  hpaths.classed('pulse',false); void document.getElementById('map').getBoundingClientRect(); hpaths.classed('pulse',true);
+}
+
+/* ---------------- odometer ---------------- */
+const odo=document.getElementById('odo');
+odo.innerHTML=String(Y0).split('').map(()=>`<span class="d"><span class="col">${d3.range(10).map(n=>`<span>${n}</span>`).join('')}</span></span>`).join('');
+function setOdo(y){ String(y).split('').forEach((ch,i)=>{ odo.children[i].firstChild.style.transform=`translateY(${-(+ch)}em)`; }); }
+
+/* ---------------- legend ---------------- */
+function legend(){
+  const el=document.getElementById('legend'), ind=IND(S.ind);
+  if(SCALE.type==='bubble'){
+    const st=[-20,0,20].map(v=>`<span style="display:inline-flex;align-items:center;gap:5px"><i style="width:12px;height:12px;border-radius:50%;background:${SCALE.c(v)};display:inline-block"></i>${v>0?'+':''}${v}%</span>`).join('');
+    el.innerHTML=`<span>${t('popLeg',Y0)}</span>${st}<svg width="190" height="62" viewBox="0 0 190 62">${[10000,100000,300000].map((p,i)=>{const r=SCALE.r(p), cx=[12,48,120][i];return `<circle cx="${cx}" cy="${58-r}" r="${r}" fill="none" stroke="var(--ink-3)"/><text x="${cx+r+4}" y="${58-r+4}">${fmtN(p/1000,0)}k</text>`;}).join('')}</svg>`;
+    el.__x=null; return;
+  }
+  const w=260,h=10, s=SCALE.s, dom=s.domain(), lo=dom[0], hi=dom[dom.length-1];
+  const ticks=SCALE.type==='log'?[10,100,1000,10000].filter(v=>v>=lo&&v<=hi):d3.ticks(lo,hi,4);
+  const x=SCALE.type==='log'?d3.scaleLog().domain([lo,hi]).range([0,w]):d3.scaleLinear().domain([lo,hi]).range([0,w]);
+  const grad=d3.range(0,1.0001,.1).map(p=>{const v=SCALE.type==='log'?Math.exp(Math.log(lo)+p*(Math.log(hi)-Math.log(lo))):lo+p*(hi-lo); return `<stop offset="${p*100}%" stop-color="${s(v)}"/>`;}).join('');
+  const unit=ind.unit?' · '+esc(ind.unit):'';
+  const dg=v=>Math.abs(hi-lo)<5&&v%1?(Math.abs(hi-lo)<.5?2:1):0;
+  const mv=areaVal(S.ind,mainA(S.ind),S.year);
+  el.innerHTML=`<svg width="${w+30}" height="34" viewBox="-12 0 ${w+30} 34"><defs><linearGradient id="lg">${grad}</linearGradient></defs><rect width="${w}" height="${h}" rx="3" fill="url(#lg)"/><path id="legmark" d="M0,-1 l-5,-6 h10z" fill="var(--ink)" opacity="${mv?1:0}" transform="translate(${x(Math.max(lo,Math.min(hi,mv?mv.v:lo)))},${0})"/>${ticks.map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${h}" y2="${h+4}" stroke="var(--ink-3)"/><text x="${x(v)}" y="${h+16}" text-anchor="middle">${fmtN(v,dg(v))}</text>`).join('')}</svg><span>${SCALE.type==='div'?'':t('darker')}${unit}</span><span style="margin-left:auto">${t('zoom')}</span>`;
+  el.__x=x; el.__lo=lo; el.__hi=hi;
+}
+function moveLegendMark(){ const el=document.getElementById('legend'), m=document.getElementById('legmark'); if(!m||!el.__x) return; const r=areaVal(S.ind,mainA(S.ind),S.year);
+  d3.select(m).attr('opacity',r?1:0); if(r) d3.select(m).transition().duration(dur(500)).attr('transform',`translate(${el.__x(Math.max(el.__lo,Math.min(el.__hi,r.v)))},0)`); }
+
+/* ---------------- side panels ---------------- */
+function tweenNum(el,to,ind,d){
+  if(!ok(to)){ d3.select(el).interrupt(); el.__v=undefined; el.textContent='–'; return; }
+  const from=ok(el.__v)?el.__v:to; el.__v=to;
+  d3.select(el).interrupt().transition().duration(dur(d??600)).ease(d3.easeCubicOut).tween('text',()=>{const i=d3.interpolateNumber(from,to); return tt=>{el.textContent=fmtV(i(tt),ind);};});
+}
+function buildNum(){
+  const ind=IND(S.ind);
+  document.getElementById('pnum').innerHTML=`<h3>${esc(areaName(mainA(S.ind)))} · <span id="ny">${S.year}</span></h3><div class="bignum num" id="bn"></div>
+    <div class="tags"><span class="tag" id="nch"></span><span class="tag" id="ndy" hidden></span>${ind.series.EU27?`<span class="tag">${t('eu27')}: <b id="neu"></b></span>`:''}</div>
+    <p class="ptext fade">${esc(nm(ind.text))} <a href="${esc(ind.url)}" target="_blank" rel="noopener">${t('src')}</a></p>`;
+  updNum(true);
+}
+function updNum(first){
+  const ind=IND(S.ind), y=S.year, a=mainA(S.ind), r=hlast(S.ind,a,y), fy=firstYear(S.ind,a);
+  document.getElementById('ny').textContent=y;
+  const bn=document.getElementById('bn'); if(first) bn.__v=0;
+  if(r){ tweenNum(bn,r.v,ind,first?900:500); bn.classList.remove('muted'); } else { tweenNum(bn,null,ind); }
+  const nch=document.getElementById('nch'), ndy=document.getElementById('ndy');
+  if(r&&fy!=null&&r.y>fy){ const ch=r.v-hval(S.ind,a,fy); nch.hidden=false; nch.innerHTML=`${ch>0?'▲':ch<0?'▼':'•'} <b>${esc(fmtV(Math.abs(ch),ind))}</b> ${t('since',fy)}`; }
+  else { nch.hidden=!(!r); nch.innerHTML=r?'':esc(t('nodata')); }
+  if(r&&r.y!==y){ ndy.hidden=false; ndy.textContent=t('dataYear',r.y); } else ndy.hidden=true;
+  const e=document.getElementById('neu'); if(e){ const q=hlast(S.ind,'EU27',y); tweenNum(e,q?q.v:null,ind,500); }
+}
+function selSeries(){
+  const ind=IND(S.ind), isSum=ind.unit===''||ind.unit==='M€'||ind.unit==='MW', a=mainA(S.ind), ehS=YEARS.map(yy=>hval(S.ind,a,yy));
+  if(!S.sel) return {name:areaName(a),sub:'',s:ehS,ref:null};
+  if(S.sel.type==='u'&&useU()){ const i=UIDX.get(S.sel.id); return {name:U.names[i],sub:`${areaName(U.h[i])}`,i,s:U.ind[S.ind][i],ref:isSum?null:ehS}; }
+  const h=S.sel.type==='h'?S.sel.id:U.h[UIDX.get(S.sel.id)];
+  let s=YEARS.map(yy=>hval(S.ind,h,yy)), name=areaName(h), sub='';
+  if(!s.some(ok)&&PARENT[h]&&IND(S.ind).series[PARENT[h]]){ s=YEARS.map(yy=>hval(S.ind,PARENT[h],yy)); sub=t('agg',areaName(PARENT[h])); }
+  return {name,sub,s,ref:isSum?null:ehS};
+}
+function buildSel(){
+  const ind=IND(S.ind), o=selSeries(), ps=document.getElementById('psel');
+  ps.innerHTML=`<h3>${t('sel')}</h3>${S.sel?`<div class="nm fade">${esc(o.name)}</div><div class="sub" id="ssub"></div><div class="val num" id="sval"></div>`:`<p class="hint">${t('selHint')}</p>`}<div id="spk"></div>${o.ref?`<div class="small muted">— ${esc(o.name)} &nbsp; ┄ ${esc(areaName(mainA(S.ind)))}</div>`:''}`;
+  const w=320,h=110,m={l:6,r:46,t:10,b:18}, all=o.s.concat(o.ref||[]).filter(ok);
+  const x=d3.scaleLinear().domain([Y0,Y1]).range([m.l,w-m.r]), ext=all.length?d3.extent(all):[0,1];
+  if(ext[0]===ext[1]){ext[0]-=1; ext[1]+=1;}
+  const y=d3.scaleLinear().domain(ext).nice().range([h-m.b,m.t]);
+  const line=d3.line().defined(ok).x((v,i)=>x(Y0+i)).y(v=>y(v)).curve(d3.curveMonotoneX);
+  const sv=d3.select('#spk').append('svg').attr('class','spark').attr('viewBox',`0 0 ${w} ${h}`);
+  const dg=v=>Math.abs(ext[1]-ext[0])<5&&v%1?1:0;
+  y.ticks(3).forEach(v=>{ sv.append('line').attr('x1',m.l).attr('x2',w-m.r).attr('y1',y(v)).attr('y2',y(v)).attr('stroke','var(--line)'); sv.append('text').attr('x',w-m.r+4).attr('y',y(v)+3).text(fmtN(v,dg(v))); });
+  if(o.ref) sv.append('path').attr('d',line(o.ref)).attr('fill','none').attr('stroke','var(--eu)').attr('stroke-width',1.6).attr('stroke-dasharray','4 3');
+  const area=d3.area().defined(ok).x((v,i)=>x(Y0+i)).y0(h-m.b).y1(v=>y(v)).curve(d3.curveMonotoneX);
+  sv.append('path').attr('d',area(o.s)).attr('fill','var(--accent-2)').attr('fill-opacity',.12);
+  const p=sv.append('path').attr('d',line(o.s)||'').attr('fill','none').attr('stroke','var(--accent-2)').attr('stroke-width',2.6);
+  // isolated points (sparse series)
+  o.s.forEach((v,i)=>{ if(ok(v)&&!ok(o.s[i-1])&&!ok(o.s[i+1])) sv.append('circle').attr('cx',x(Y0+i)).attr('cy',y(v)).attr('r',2.6).attr('fill','var(--accent-2)'); });
+  const L=p.node().getTotalLength()||0; if(L) p.attr('stroke-dasharray',`${L} ${L}`).attr('stroke-dashoffset',L).transition().duration(dur(900)).ease(d3.easeCubicOut).attr('stroke-dashoffset',0);
+  sv.append('line').attr('class','cur').attr('y1',m.t).attr('y2',h-m.b).attr('stroke','var(--ink)').attr('stroke-dasharray','2 3');
+  sv.append('circle').attr('class','dot').attr('r',4.5).attr('fill','var(--accent-2)').attr('stroke','var(--surface)').attr('stroke-width',2);
+  sv.append('text').attr('x',m.l).attr('y',h-4).text(Y0); sv.append('text').attr('x',w-m.r).attr('y',h-4).attr('text-anchor','end').text(Y1);
+  ps.__sp={x,y,o,sv}; updSel(true);
+}
+function lastIn(s,yi){ for(let k=yi;k>=0;k--) if(ok(s[k])) return {v:s[k],k}; return null; }
+function updSel(first){
+  const ps=document.getElementById('psel'), sp=ps.__sp; if(!sp) return; const ind=IND(S.ind), yi=S.year-Y0, d=first?0:dur(450);
+  const r=lastIn(sp.o.s,yi);
+  sp.sv.select('.cur').transition().duration(d).attr('x1',sp.x(S.year)).attr('x2',sp.x(S.year));
+  sp.sv.select('.dot').attr('opacity',r?1:0); if(r) sp.sv.select('.dot').transition().duration(d).attr('cx',sp.x(Y0+r.k)).attr('cy',sp.y(r.v));
+  const sv=document.getElementById('sval'); if(sv) tweenNum(sv,r?r.v:null,ind,first?0:450);
+  const sub=document.getElementById('ssub'), dy=r&&r.k!==yi?` · ${t('dataYear',Y0+r.k)}`:'';
+  if(sub&&sp.o.i!=null){ const p=mlast('biztanleria',sp.o.i,S.year); sub.textContent=`${sp.o.sub}${p?` · ${fmtN(p.v,0)} ${t('inhab')}`:''}${dy}`; }
+  else if(sub) sub.textContent=[sp.o.sub,dy.replace(' · ','')].filter(Boolean).join(' · ');
+}
+let RACE=[];
+function buildRank(){
+  RACE=raceAreas(S.ind);
+  const isReg=RACE.some(r=>r.id==='EAE'||r.id==='IEH');
+  document.getElementById('prank').innerHTML=`<h3>${isReg?t('rankR'):t('rank')} · <span id="ry">${S.year}</span></h3><div class="race" id="race" style="height:${Math.max(1,RACE.length)*28}px"></div>`;
+  d3.select('#race').selectAll('button').data(RACE,a=>a.id).join('button').attr('type','button').attr('class','r')
+    .html(a=>`<span class="nmx"><span class="pos"></span>${esc(areaName(a.id))}</span><span class="bar"><i style="width:0%"></i></span><span class="v"></span>`)
+    .on('click',(e,a)=>{ S.sel={type:'h',id:a.id}; paintMap('now'); buildSel(); updRank();});
+  updRank(true);
+}
+function updRank(first){
+  const ind=IND(S.ind), y=S.year, rows=RACE.map(a=>{const r=hlast(S.ind,a.id,y); return {a,v:r?r.v:null,dy:r?r.y:null};});
+  const sorted=rows.slice().sort((p,q)=>(ok(q.v)?q.v:-Infinity)-(ok(p.v)?p.v:-Infinity)), pos=new Map(sorted.map((r,i)=>[r.a.id,i]));
+  const all=[]; RACE.forEach(a=>YEARS.forEach(yy=>all.push(hval(S.ind,a.id,yy))));
+  const af=all.filter(ok), mn=Math.min(0,d3.min(af)??0), mx=d3.max(af)??1;
+  const selH=S.sel?(S.sel.type==='h'?S.sel.id:U.h[UIDX.get(S.sel.id)]):null;
+  document.getElementById('ry').textContent=y;
+  d3.select('#race').selectAll('button.r').data(rows,d=>d.a?d.a.id:d.id).each(function(r){
+    this.style.top=(pos.get(r.a.id)*28)+'px'; this.classList.toggle('on',r.a.id===selH||(selH&&PARENT[selH]===r.a.id&&!RACE.find(x=>x.id===selH)));
+    this.querySelector('.pos').textContent=ok(r.v)?(pos.get(r.a.id)+1)+'.':'';
+    this.title=ok(r.v)&&r.dy!==y?t('dataYear',r.dy):'';
+    const bar=this.querySelector('.bar i'); const wpc=ok(r.v)?Math.max(2,(r.v-mn)/((mx-mn)||1)*100):0;
+    if(first) requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.width=wpc+'%')); else bar.style.width=wpc+'%';
+    tweenNum(this.querySelector('.v'),r.v,ind,first?800:500);
+  });
+}
+function buildTop(){
+  const pt=document.getElementById('ptop');
+  if(!useU()){ pt.hidden=true; return; }
+  const ind=IND(S.ind), y=S.year, arr=U.ind[S.ind].map((s,i)=>{const r=mlast(S.ind,i,y); return {i,v:r?r.v:null};}).filter(o=>ok(o.v)).sort((a,b)=>b.v-a.v);
+  const li=o=>`<li><button type="button" data-u="${U.ids[o.i]}">${esc(U.names[o.i])}</button> <span>${esc(fmtV(o.v,ind))}</span></li>`;
+  pt.hidden=false; pt.innerHTML=`<h3>${arr.length} ${t('munis')} · ${y}</h3>${arr.length?`<div class="cols"><div><div class="small muted" style="margin-bottom:4px">${t('top')}</div><ol>${arr.slice(0,6).map(li).join('')}</ol></div><div><div class="small muted" style="margin-bottom:4px">${t('bottom')}</div><ol>${arr.slice(-6).reverse().map(li).join('')}</ol></div></div>`:`<p class="hint">${t('nodata')}</p>`}`;
+  pt.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{S.sel={type:'u',id:b.dataset.u}; paintMap('now'); buildSel(); updRank(); focusMuni(b.dataset.u);});
+}
+function focusMuni(id){ const f=muni.find(m=>m.id===id); if(!f) return; const k=4; svg.transition().duration(dur(750)).call(zoom.transform,d3.zoomIdentity.translate(W/2-f.c[0]*k,H/2-f.c[1]*k).scale(k)); }
+
+/* ---------------- header / picker / dock ---------------- */
+function header(animate){
+  const ind=IND(S.ind), sec=ind.section;
+  document.getElementById('mapcard').className='card mapcard sec-'+sec; document.getElementById('side').className='side sec-'+sec;
+  document.getElementById('mk').textContent=`${ind.code} · ${nm(D.sections.find(s=>s.id===sec).name)}`;
+  const h2=document.getElementById('mtitle'); h2.textContent=nm(ind.name); if(animate){h2.classList.remove('swap'); void h2.offsetWidth; h2.classList.add('swap');}
+  const lv=document.getElementById('level'); lv.className='seg sec-'+sec; const canU=MUNI.has(S.ind);
+  lv.querySelector('[data-l="h"]').textContent=t('lvH'); lv.querySelector('[data-l="u"]').textContent=t('lvU');
+  lv.querySelector('[data-l="u"]').disabled=!canU; lv.querySelector('[data-l="u"]').title=canU?'':t('lvNo');
+  lv.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===(canU?S.level:'h'))));
+  document.getElementById('mapnote').textContent=useU()?t('noteU'):t('noteH');
+}
+let PICK_SUPPRESS=null;
+function closeMenus(){ document.querySelectorAll('#dial .grp.open').forEach(g=>{g.classList.remove('open'); g.querySelector('.gbtn').setAttribute('aria-expanded','false');}); }
+function picker(){
+  const dial=document.getElementById('dial');
+  dial.innerHTML=D.sections.map(s=>{ const on=S.sec===s.id, ids=IDS.filter(id=>IND(id).section===s.id);
+    return `<div class="grp sec-${s.id}${on?' on':''}${PICK_SUPPRESS===s.id?' nohover':''}" data-sec="${s.id}">
+      <button type="button" class="gbtn" data-sec="${s.id}" aria-pressed="${on}" aria-haspopup="true" aria-expanded="false"><span class="c">${s.code}</span>${esc(nm(s.name))}<span class="car" aria-hidden="true">▾</span></button>
+      ${on?`<span class="gsel" title="${esc(nm(IND(S.ind).name))}"><span class="cd">${IND(S.ind).code}</span>${esc(short(S.ind))}${MUNI.has(S.ind)?'<span class="pin"></span>':''}</span>`:''}
+      <div class="gmenu" role="menu" aria-label="${esc(nm(s.name))}">${ids.map(id=>`<button type="button" class="mi" role="menuitemradio" aria-checked="${S.ind===id}" data-ind="${id}" title="${esc(nm(IND(id).name))}"><span class="cd">${IND(id).code}</span><span class="mn">${esc(short(id))}</span>${MUNI.has(id)?'<span class="pin"></span>':''}</button>`).join('')}${ids.some(id=>MUNI.has(id))?`<span class="pinleg"><i class="pin"></i>${t('pinLeg')}</span>`:''}</div>
+    </div>`; }).join('');
+  const ch=document.getElementById('chips'); ch.innerHTML=''; ch.hidden=true;
+  dial.querySelectorAll('.grp').forEach(g=>g.addEventListener('mouseleave',()=>{ g.classList.remove('nohover'); if(PICK_SUPPRESS===g.dataset.sec) PICK_SUPPRESS=null; }));
+  dial.querySelectorAll('.gbtn').forEach(b=>b.onclick=e=>{ const g=b.closest('.grp'), was=g.classList.contains('open'); closeMenus();
+    if(!was){ g.classList.add('open'); g.classList.remove('nohover'); b.setAttribute('aria-expanded','true'); } });
+  dial.querySelectorAll('.mi').forEach(b=>b.onclick=()=>{ const g=b.closest('.grp'); PICK_SUPPRESS=g.dataset.sec; closeMenus(); if(S.ind!==b.dataset.ind) setInd(b.dataset.ind); else picker(); });
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('#dial .grp')) closeMenus(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenus(); });
+function dockUI(){
+  const r=document.getElementById('range'); if(+r.value!==S.year) r.value=S.year;
+  const pl=document.getElementById('play'); pl.textContent=S.playing?'❚❚':'▶'; pl.classList.toggle('on',S.playing); pl.setAttribute('aria-label',S.playing?'Pause':'Play');
+  document.getElementById('speed').textContent=t('speed')+' '+SPEEDS[S.speed].l;
+  const tr=document.getElementById('track'); tr.querySelectorAll('.ev').forEach(e=>e.remove());
+  D.events.forEach(e=>{ const b=document.createElement('button'); b.type='button'; b.className='ev'+(S.found[e.year]?' found':''); b.style.left=((e.year-Y0)/(Y1-Y0)*100)+'%'; b.innerHTML=`<b></b>${e.year}`; b.title=nm(e.name); b.onclick=()=>{stop(); setYear(e.year);}; tr.appendChild(b); });
+  const n=Object.keys(S.found).length;
+  document.getElementById('found').innerHTML=`${t('found')}: <b>${n}/${D.events.length}</b> ${Array.from({length:n},(_,i)=>`<span class="gem"${i<n-1?' style="animation:none"':''}>◆</span>`).join('')}`;
+}
+let evTimer=null;
+function showEvent(e){
+  const slot=document.getElementById('evslot');
+  slot.innerHTML=`<div class="evcard"><div class="k">◆ ${t('event')} · ${e.year}</div><h4>${esc(nm(e.name))}</h4><p>${esc(nm(e.text))}</p><button type="button" id="see">${t('see')}: ${esc(short(e.ind))} →</button></div>`;
+  document.getElementById('see').onclick=()=>{stop(); hideEvent(true); S.sec=IND(e.ind).section; setInd(e.ind);};
+  clearTimeout(evTimer); evTimer=setTimeout(()=>hideEvent(),5200);
+  ripple();
+}
+function hideEvent(now){ const c=document.querySelector('#evslot .evcard'); if(!c) return; if(now){c.remove();return;} c.classList.add('out'); setTimeout(()=>c.remove(),420); }
+
+/* ---------------- actions ---------------- */
+function setYear(y){
+  const ny=Math.max(Y0,Math.min(Y1,y)); if(ny===S.year&&!S.playing) return; S.year=ny;
+  setOdo(S.year); paintMap('year'); moveLegendMark(); updNum(); updSel(); updRank(); buildTop();
+  const e=D.events.find(x=>x.year===S.year);
+  if(e){ const isNew=!S.found[e.year]; S.found[e.year]=1; showEvent(e); if(S.playing&&isNew) S.hold=true; }
+  euYear(); cmpYear();
+  dockUI();
+}
+function setInd(id){
+  S.ind=id; S.sec=IND(id).section; if(S.sel&&S.sel.type==='u'&&!MUNI.has(id)) S.sel={type:'h',id:U.h[UIDX.get(S.sel.id)]};
+  buildScale(); header(true); picker(); paintMap('sweep'); legend(); buildNum(); buildSel(); buildRank(); buildTop(); EU.sel=null; euRender('sweep'); applyView(); cmpRender();
+}
+function stop(){ if(S.timer){clearTimeout(S.timer);S.timer=null;} S.playing=false; S.hold=false; dockUI(); }
+function tick(){ if(!S.playing) return; if(S.year>=Y1){stop();return;}
+  setYear(S.year+1); const wait=S.hold?SPEEDS[S.speed].ms+1800:SPEEDS[S.speed].ms; S.hold=false; S.timer=setTimeout(tick,wait); }
+function play(){ if(S.playing){stop();return;} if(S.year>=Y1){S.year=Y0; setOdo(Y0); paintMap('year'); updNum(); updSel(); updRank(); buildTop(); euYear(); cmpYear();} S.playing=true; dockUI(); S.timer=setTimeout(tick,250); }
+document.getElementById('play').onclick=play;
+document.getElementById('prev').onclick=()=>{stop(); setYear(S.year-1);};
+document.getElementById('next').onclick=()=>{stop(); setYear(S.year+1);};
+document.getElementById('speed').onclick=()=>{ S.speed=(S.speed+1)%SPEEDS.length; dockUI(); };
+const rangeEl=document.getElementById('range'); rangeEl.min=Y0; rangeEl.max=Y1;
+document.querySelector('.ticks').innerHTML=d3.range(Y0,Y1+1,Math.ceil((Y1-Y0)/5)).concat((Y1-Y0)%Math.ceil((Y1-Y0)/5)?[Y1]:[]).map(y=>`<span>${y}</span>`).join('');
+rangeEl.addEventListener('input',e=>{ if(S.playing) stop(); setYear(+e.target.value); });
+document.querySelectorAll('#level button').forEach(b=>b.onclick=()=>{ if(b.disabled||S.level===b.dataset.l) return; S.level=b.dataset.l; buildScale(); header(); paintMap('sweep'); legend(); buildSel(); updRank(); buildTop(); if(typeof cmpRender==='function') cmpRender(); });
+document.querySelector('.lang').addEventListener('click',e=>{const b=e.target.closest('[data-lang]'); if(!b) return; LANG=b.dataset.lang; try{localStorage.setItem('gj-lang',LANG);}catch(_){} renderAll(false);});
+document.addEventListener('keydown',e=>{ if(e.target.closest('input,select,textarea,button')&&e.key===' ') return; if(e.key===' '){e.preventDefault();play();} if(e.key==='ArrowRight'){stop();setYear(S.year+1);} if(e.key==='ArrowLeft'){stop();setYear(S.year-1);} });
+
+/* tooltip + click */
+const tip=document.getElementById('tip'), wrap=document.getElementById('mapwrap');
+mpaths.on('pointermove',(e,f)=>{
+  const ind=IND(S.ind), y=S.year; let html;
+  if(useU()&&f.i!=null){ const r=mlast(S.ind,f.i,y), r0=mfirst(S.ind,f.i);
+    const dd=r&&r0&&r.y>r0.y?r.v-r0.v:null;
+    html=`<b>${esc(U.names[f.i])}</b><br><span class="small">${esc(areaName(f.properties.h))}</span><br><span class="v">${esc(r?fmtV(r.v,ind):t('nodata'))}</span>${r&&r.y!==y?` <span class="small">(${esc(t('dataYear',r.y))})</span>`:''}${ok(dd)?` <span class="small">(${dd>=0?'+':'−'}${esc(fmtV(Math.abs(dd),ind))} ${t('since',r0.y)})</span>`:''}`; }
+  else { const r=areaVal(S.ind,f.properties.h,y);
+    html=`<b>${esc(areaName(f.properties.h))}</b><br><span class="small">${esc(f.properties.n)}</span><br><span class="v">${esc(r?fmtV(r.v,ind):t('nodata'))}</span>${r&&r.src!==f.properties.h?` <span class="small">(${esc(t('agg',areaName(r.src)))})</span>`:''}${r&&r.y!==y?` <span class="small">(${esc(t('dataYear',r.y))})</span>`:''}`; }
+  const rr=wrap.getBoundingClientRect(); tip.innerHTML=html; tip.style.left=Math.min(rr.width-120,Math.max(120,e.clientX-rr.left))+'px'; tip.style.top=(e.clientY-rr.top)+'px'; tip.style.opacity=1;
+}).on('pointerleave',()=>tip.style.opacity=0)
+  .on('click',(e,f)=>{ S.sel=useU()?{type:'u',id:f.id}:{type:'h',id:f.properties.h}; paintMap('now'); buildSel(); updRank(); });
+
+function renderAll(intro){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-t]').forEach(el=>el.innerHTML=t(el.dataset.t));
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANG)));
+  buildScale(); header(); picker(); legend(); buildNum(); buildSel(); buildRank(); buildTop(); dockUI(); setOdo(S.year); euRender(intro?'sweep':'now'); applyView(); cmpRender();
+  if(intro){
+    if(!RM){ hpaths.each(function(){const L=this.getTotalLength(); d3.select(this).attr('stroke-dasharray',`${L} ${L}`).attr('stroke-dashoffset',L).transition().duration(1400).ease(d3.easeCubicInOut).attr('stroke-dashoffset',0).on('end',function(){d3.select(this).attr('stroke-dasharray',null);});}); }
+    setTimeout(()=>paintMap('sweep'),RM?0:500);
+  } else paintMap('now');
+}
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{buildScale();paintMap('now');legend();euRender('now');}); }catch(_){}
+new MutationObserver(()=>{buildScale();paintMap('now');legend();euRender('now');}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ================= EUROPA: Euskal Herria Europan ================= */
+const E=window.GAINDEGIA_EUROPA;
+const TE={
+ eu:{euH:"Euskal Herria Europan", euSub:"Konparatu Euskal Herria Europako estatu eta erregioekin. Adierazlea eta urtea goiko denbora-makinarekin sinkronizatuta daude.",
+  euS:"Estatuak", euR:"Erregioak", euNo:"Adierazle honek ez du Europako konparaziorik. Aukeratu hauetako bat:",
+  euPos:(n,m,l)=>`${n}. postua ${m} ${l==='s'?'estaturen':'erregioren'} artean`, euData:"Europako datua", euRank:"Sailkapena",
+  euStar:"Hego Euskal Herria* (EAE + Nafarroa Garaia)", euStarTag:"Hego EH*",
+  euNote:"Iturria: Gaindegia, DatuAtaria (estatuak eta erregioak). Euskal Herria laranjaz nabarmenduta; marraduna = Hego Euskal Herriko datua soilik. Urte batean daturik ez badago, aurreko azken datua.",
+  euHigher:"handiagoa", euLower:"txikiagoa", euVs:"vs", euSel:"Hautatutakoa", euEU:"EB27"},
+ es:{euH:"Euskal Herria en Europa", euSub:"Compara Euskal Herria con los estados y regiones de Europa. Indicador y año sincronizados con la máquina del tiempo.",
+  euS:"Estados", euR:"Regiones", euNo:"Este indicador no tiene comparación europea. Elige uno de estos:",
+  euPos:(n,m,l)=>`puesto ${n} de ${m} ${l==='s'?'estados':'regiones'}`, euData:"Dato europeo", euRank:"Clasificación",
+  euStar:"Hego Euskal Herria* (CAV + Navarra)", euStarTag:"Hego EH*",
+  euNote:"Fuente: Gaindegia, DatuAtaria (estados y regiones). Euskal Herria resaltada en naranja; rayado = solo dato de Hego Euskal Herria. Si un año no tiene dato, se muestra el último disponible.",
+  euHigher:"mayor", euLower:"menor", euVs:"vs", euSel:"Selección", euEU:"UE27"}};
+const te=(k,...a)=>{const v=TE[LANG][k]??TE.eu[k]; return typeof v==='function'?v(...a):v;};
+const EU={level:'s', sel:null, zk:1};
+const eSvg=d3.select('#eumap'), EW=900, EH_=640;
+const eRewind=f=>{ const g=f.geometry; if(!g) return f; const polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  const fixed=polys.map(p=>d3.geoArea({type:'Polygon',coordinates:p})>2*Math.PI?p.map(r=>r.slice().reverse()):p);
+  f.geometry={type:'MultiPolygon',coordinates:fixed}; return f; };
+const eFeat={s:topojson.feature(E.topo,E.topo.objects.s).features.map(eRewind), r:topojson.feature(E.topo,E.topo.objects.r).features.map(eRewind)};
+const eNames={}; [...eFeat.s,...eFeat.r].forEach(f=>eNames[f.id]=f.properties);
+const eProj=d3.geoAzimuthalEqualArea().rotate([-12,-52]).fitExtent([[10,10],[EW-10,EH_-10]],{type:'Feature',geometry:{type:'MultiPoint',coordinates:[[-11,36],[31,36],[-9,62],[30,70],[38,44]]}});
+const ePath=d3.geoPath(eProj);
+const eDefs=eSvg.append('defs');
+const eh=eDefs.append('pattern').attr('id','euhatch').attr('patternUnits','userSpaceOnUse').attr('width',5).attr('height',5).attr('patternTransform','rotate(45)');
+eh.append('line').attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',5).attr('stroke','var(--surface)').attr('stroke-width',1.6).attr('opacity',.7);
+const eRoot=eSvg.append('g'), eG=eRoot.append('g'), eX=eRoot.append('g').attr('pointer-events','none'), eHL=eRoot.append('g').attr('pointer-events','none');
+const eZoom=d3.zoom().scaleExtent([1,12]).translateExtent([[0,0],[EW,EH_]]).on('zoom',ev=>{EU.zk=ev.transform.k; eRoot.attr('transform',ev.transform);});
+eSvg.call(eZoom);
+d3.select('#euzin').on('click',()=>eSvg.transition().duration(300).call(eZoom.scaleBy,1.6));
+d3.select('#euzout').on('click',()=>eSvg.transition().duration(300).call(eZoom.scaleBy,1/1.6));
+d3.select('#euzreset').on('click',()=>eSvg.transition().duration(450).call(eZoom.transform,d3.zoomIdentity));
+d3.select('#euzeh').on('click',()=>{ const f=eFeat[EU.level].find(x=>x.id==='EH'); if(!f) return; const [[x0,y0],[x1,y1]]=ePath.bounds(f), k=Math.min(10,0.35*Math.min(EW/(x1-x0),EH_/(y1-y0))); eSvg.transition().duration(750).call(eZoom.transform,d3.zoomIdentity.translate(EW/2-k*(x0+x1)/2,EH_/2-k*(y0+y1)/2).scale(k)); });
+const eData=()=>E.ind[S.ind];
+const eUnitFmt=(v,u)=>{ if(!ok(v)) return '–'; const a=Math.abs(v), d=a>=1000?0:a>=10?1:2, n=fmtN(v,d);
+  if(u==='%'||u==='‰') return LANG==='eu'?u+n:n+' '+u; return u?n+' '+u:n; };
+const eFmt=v=>eUnitFmt(v,(eData()||{}).unit||'');
+function eLast(ser,y){ if(!ser) return null; for(let yy=y;yy>=Y0;yy--){const v=ser[String(yy)]; if(ok(v)) return {v,y:yy};} return null; }
+function eVal(id,y){ const d=eData(); if(!d) return null; const lv=d[EU.level]||{};
+  if(id==='EH'){ const r=eLast(lv.EH,y); if(r) return {...r,star:false}; const q=eLast(d.ref['EH*'],y); return q?{...q,star:true}:null; }
+  return eLast(lv[id],y); }
+let ESCALE=null;
+function eScale(){
+  const d=eData(); if(!d){ESCALE=null;return;}
+  const lv=d[EU.level]||{}; let vals=[]; Object.entries(lv).forEach(([k,s])=>Object.entries(s).forEach(([y,v])=>vals.push(v)));
+  if(d.ref['EH*']) Object.values(d.ref['EH*']).forEach(v=>vals.push(v));
+  vals=vals.filter(ok).sort(d3.ascending); if(!vals.length) vals=[0,1];
+  let ext=[d3.quantile(vals,.03),d3.quantile(vals,.97)]; if(ext[0]===ext[1]){ext[0]-=1;ext[1]+=1;}
+  const lo=css('--ramp-lo'), hi=css('--c-'+IND(S.ind).section);
+  if(ext[0]<0&&ext[1]>0){ const m=Math.max(-ext[0],ext[1]); ESCALE={div:true,s:d3.scaleDiverging(d3.piecewise(d3.interpolateRgb,[css('--down'),css('--ramp-lo'),css('--up')])).domain([-m,0,m]).clamp(true)}; }
+  else ESCALE={div:false,s:d3.scaleSequential(d3.interpolateLab(lo,hi)).domain(ext).clamp(true)};
+}
+const eCol=r=>r&&ESCALE?ESCALE.s(r.v):css('--map-empty');
+function eDraw(mode){
+  const d=eData(), feats=eFeat[EU.level], y=S.year, dd=mode==='sweep'?dur(600):mode==='year'?dur(Math.min(520,SPEEDS[S.speed].ms*.7)):0;
+  const p=eG.selectAll('path').data(feats,f=>EU.level+f.id);
+  p.exit().remove();
+  const pe=p.enter().append('path').attr('class','eu').attr('d',ePath).attr('fill',css('--map-empty'))
+    .on('pointermove',(ev,f)=>eTip(ev,f)).on('pointerleave',()=>document.getElementById('eutip').style.opacity=0)
+    .on('click',(ev,f)=>eClick(f));
+  const all=pe.merge(p);
+  all.classed('sel',f=>f.id===EU.sel).classed('eh',f=>f.id==='EH');
+  all.interrupt().transition().duration(dd).delay(f=>mode==='sweep'?dur((ePath.centroid(f)[0]||0)/EW*420):0).attr('fill',f=>d?eCol(eVal(f.id,y)):css('--map-empty'));
+  const ehf=feats.filter(f=>f.id==='EH');
+  eX.selectAll('path').data(ehf).join('path').attr('d',ePath).attr('fill','url(#euhatch)').attr('opacity',f=>{const r=d&&eVal('EH',y); return r&&r.star?1:0;});
+  eHL.selectAll('path').data(ehf).join('path').attr('class','ehline').attr('d',ePath);
+  if(typeof eCmpStyle==='function') eCmpStyle();
+}
+function eTip(ev,f){
+  const r=eVal(f.id,S.year), nmf=f.id==='EH'?(r&&r.star?te('euStar'):'Euskal Herria'):nm(eNames[f.id]);
+  const tip=document.getElementById('eutip'), rr=document.getElementById('euwrap').getBoundingClientRect();
+  tip.innerHTML=`<b>${esc(nmf)}</b><br><span class="v">${esc(r?eFmt(r.v):t('nodata'))}</span>${r&&r.y!==S.year?` <span class="small">(${esc(t('dataYear',r.y))})</span>`:''}`;
+  tip.style.left=Math.min(rr.width-120,Math.max(120,ev.clientX-rr.left))+'px'; tip.style.top=(ev.clientY-rr.top)+'px'; tip.style.opacity=1;
+}
+function eRanked(){ const d=eData(); if(!d) return []; const lv=d[EU.level]||{}, y=S.year;
+  const ids=new Set(Object.keys(lv)); if(d.ref['EH*']) ids.add('EH');
+  return [...ids].map(id=>({id,r:eVal(id,y)})).filter(o=>o.r).sort((a,b)=>b.r.v-a.r.v); }
+function eLegend(){
+  const el=document.getElementById('eulegend'), d=eData(); if(!d||!ESCALE){el.innerHTML='';return;}
+  const w=260,h=10,s=ESCALE.s,dom=s.domain(),lo=dom[0],hi=dom[dom.length-1],x=d3.scaleLinear().domain([lo,hi]).range([0,w]);
+  const grad=d3.range(0,1.0001,.1).map(p=>`<stop offset="${p*100}%" stop-color="${s(lo+p*(hi-lo))}"/>`).join('');
+  const r=eVal('EH',S.year), dg=v=>Math.abs(hi-lo)<5&&v%1?(Math.abs(hi-lo)<.5?2:1):0;
+  el.innerHTML=`<svg width="${w+30}" height="34" viewBox="-12 0 ${w+30} 34"><defs><linearGradient id="eulg">${grad}</linearGradient></defs><rect width="${w}" height="${h}" rx="3" fill="url(#eulg)"/><path d="M0,-1 l-5,-6 h10z" fill="var(--accent-2)" opacity="${r?1:0}" transform="translate(${x(Math.max(lo,Math.min(hi,r?r.v:lo)))},0)"/>${d3.ticks(lo,hi,4).map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${h}" y2="${h+4}" stroke="var(--ink-3)"/><text x="${x(v)}" y="${h+16}" text-anchor="middle">${fmtN(v,dg(v))}</text>`).join('')}</svg><span><span style="color:var(--accent-2)">▼</span> Euskal Herria${d.unit?' · '+esc(d.unit):''}</span><span style="margin-left:auto">${t('zoom')}</span>`;
+}
+function eSide(){
+  const d=eData(), pn=document.getElementById('eunum'), pr=document.getElementById('eurank');
+  document.getElementById('euside').hidden=!d||cmpIsOn(); document.getElementById('eulegend').hidden=!d; document.querySelector('#euwrap .zoom').hidden=!d;
+  if(!d){ pn.innerHTML=''; pr.innerHTML=''; return; }
+  const y=S.year, rk=eRanked(), i=rk.findIndex(o=>o.id==='EH'), me=i>=0?rk[i]:null;
+  const ref=(id)=>{const r=eLast((d.s||{})[id],y); return r?`<span class="tag">${esc(nm(eNames[id]))}: <b>${esc(eFmt(r.v))}</b></span>`:'';};
+  const eu27=eLast(d.ref.EU27,y);
+  const sel=EU.sel&&EU.sel!=='EH'?(()=>{const r=eVal(EU.sel,y); return `<div class="eusel"><span class="small muted">${te('euSel')}:</span> <b>${esc(nm(eNames[EU.sel]))}</b> <span class="num">${esc(r?eFmt(r.v):t('nodata'))}</span>${r&&me?` <span class="small muted">(Euskal Herria ${me.r.v>r.v?te('euHigher'):te('euLower')})</span>`:''}</div>`;})():'';
+  pn.innerHTML=`<h3>${esc(me&&me.r.star?te('euStar'):'Euskal Herria')} · ${y}</h3><div class="bignum num">${esc(me?eFmt(me.r.v):'–')}</div>
+    <div class="tags">${me?`<span class="tag"><b>${esc(te('euPos',i+1,rk.length,EU.level))}</b></span>`:''}${me&&me.r.y!==y?`<span class="tag">${esc(t('dataYear',me.r.y))}</span>`:''}${eu27?`<span class="tag">${te('euEU')}: <b>${esc(eFmt(eu27.v))}</b></span>`:''}${EU.level==='s'?ref('ES')+ref('FR'):''}</div>
+    ${/^(tasa|indizea|ehunekoa|balioa|batezbestekoa|gini|intentsitatea|biztanleria)$/i.test(String(d.label).trim())?'':`<p class="ptext small muted" style="margin:8px 0 0">${te('euData')}: ${esc(d.label)}</p>`}${sel}`;
+  const mx=d3.max(rk,o=>o.r.v)??1, mn=Math.min(0,d3.min(rk,o=>o.r.v)??0);
+  pr.innerHTML=`<h3>${te('euRank')} · ${rk.length} ${EU.level==='s'?te('euS').toLowerCase():te('euR').toLowerCase()}</h3><ol class="eulist" id="eulist">${rk.map((o,k)=>`<li class="${o.id==='EH'?'eh':''}${o.id===EU.sel?' on':''}${['ES','FR'].includes(o.id)?' nb':''}" data-id="${o.id}"><span class="pos">${k+1}.</span><span class="nmx">${esc(o.id==='EH'?(o.r.star?te('euStarTag'):'Euskal Herria'):nm(eNames[o.id]))}</span><span class="bar"><i style="width:${Math.max(1.5,(o.r.v-mn)/((mx-mn)||1)*100)}%"></i></span><span class="v">${esc(eFmt(o.r.v))}</span></li>`).join('')}</ol>`;
+  pr.querySelectorAll('li').forEach(li=>li.onclick=()=>{ EU.sel=li.dataset.id===EU.sel?null:li.dataset.id; eDraw('now'); eSide(); });
+  const ehli=pr.querySelector('li.eh'), ol=document.getElementById('eulist'); if(ehli&&ol) ol.scrollTop=Math.max(0,ehli.offsetTop-ol.offsetTop-ol.clientHeight/2+14);
+}
+function eHeader(){
+  const d=eData(), ind=IND(S.ind), card=document.getElementById('eucard');
+  
+  card.className='card mapcard sec-'+ind.section; document.getElementById('euside').className='side sec-'+ind.section;
+  document.getElementById('euk').textContent=`${ind.code} · Europa`;
+  document.getElementById('eutitle').textContent=nm(ind.name);
+  const lv=document.getElementById('eulevel'); lv.className='seg sec-'+ind.section;
+  const hasS=d&&Object.keys(d.s).length, hasR=d&&Object.keys(d.r).length;
+  if(d&&!(EU.level==='s'?hasS:hasR)) EU.level=hasS?'s':'r';
+  lv.querySelector('[data-l="s"]').textContent=te('euS'); lv.querySelector('[data-l="r"]').textContent=te('euR');
+  lv.querySelector('[data-l="s"]').disabled=!hasS; lv.querySelector('[data-l="r"]').disabled=!hasR;
+  lv.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===EU.level)));
+  document.getElementById('eunote').textContent=te('euNote');
+  const none=document.getElementById('eunone');
+  if(!d){ const ids=IDS.filter(id=>E.ind[id]);
+    none.hidden=false; none.innerHTML=`<p>${te('euNo')}</p><div class="chips">${ids.map(id=>`<button type="button" class="sec-${IND(id).section}" data-eind="${id}"><span class="cd">${IND(id).code}</span>${esc(short(id))}</button>`).join('')}</div>`;
+    none.querySelectorAll('[data-eind]').forEach(b=>b.onclick=()=>{ setInd(b.dataset.eind); document.getElementById('eustage').scrollIntoView({behavior:RM?'auto':'smooth',block:'start'}); });
+  } else none.hidden=true;
+}
+function euRender(mode){ eHeader(); eScale(); eDraw(mode||'now'); eLegend(); eSide(); }
+function euYear(){ if(!eData()) return; eDraw('year'); eLegend(); eSide(); }
+document.querySelectorAll('#eulevel button').forEach(b=>b.onclick=()=>{ if(b.disabled||EU.level===b.dataset.l) return; EU.level=b.dataset.l; EU.sel=null; euRender('sweep'); cmpRender(); });
+
+
+/* ================= IKUSPEGIA (EH / Europa) + KONPARAKETA ================= */
+const TC={
+ eu:{vEH:"Euskal Herria", vEU:"Europan", cmp:"Konparatu", cmpOn:"Konparatzen", cmpT:"Konparaketa", max:"gehienez 10",
+  phEH:"Gehitu lurraldea edo udalerria…", phEU:"Gehitu estatua edo erregioa…", clear:"Garbitu", full:"Gehienez 10 aukeratu daitezke.",
+  hint:"Mapan klik eginez ere gehitu edo kendu ditzakezu.", empty:"Aukeratu gutxienez lurralde bat konparatzeko.",
+  tA:"lurraldea", tU:"udalerria", tS:"estatua", tR:"erregioa", tX:"erreferentzia", noRes:"Ez dago emaitzarik", rm:"Kendu", now:"Urte honetan"},
+ es:{vEH:"Euskal Herria", vEU:"En Europa", cmp:"Comparar", cmpOn:"Comparando", cmpT:"Comparación", max:"máximo 10",
+  phEH:"Añadir territorio o municipio…", phEU:"Añadir estado o región…", clear:"Limpiar", full:"Se pueden elegir 10 como máximo.",
+  hint:"También puedes añadir o quitar pulsando en el mapa.", empty:"Elige al menos un territorio para comparar.",
+  tA:"territorio", tU:"municipio", tS:"estado", tR:"región", tX:"referencia", noRes:"Sin resultados", rm:"Quitar", now:"Este año"}};
+const tc=k=>TC[LANG][k]??TC.eu[k];
+const PAL=['#e8871e','#1f7a8c','#c2412d','#6a4c93','#2a9d8f','#b5179e','#7a6a00','#3d5a80','#5c946e','#d4a017'];
+let VIEW='eh'; try{ VIEW=localStorage.getItem('gj-view')||'eh'; }catch(e){}
+const CMP={on:false, eh:[], eu:[], msg:''};
+const normS=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const cmpList=()=>CMP[VIEW];
+const cmpColor=k=>{ const i=cmpList().indexOf(k); return i<0?null:PAL[i%PAL.length]; };
+
+/* --- items --- */
+function itemInfo(k){
+  const [ty,id]=[k.slice(0,1),k.slice(2)];
+  if(ty==='a') return {name:areaName(id), tag:tc('tA'), s:YEARS.map(y=>hval(S.ind,id,y)), fmt:v=>fmtV(v,IND(S.ind))};
+  if(ty==='u'){ const i=UIDX.get(id), s=U.ind[S.ind]?U.ind[S.ind][i]:YEARS.map(()=>null); return {name:U.names[i], tag:areaName(U.h[i]), s, fmt:v=>fmtV(v,IND(S.ind))}; }
+  const d=E.ind[S.ind]; const f=v=>eUnitFmt(v,(d||{}).unit||'');
+  if(ty==='x') return {name:id==='EU27'?te('euEU'):id, tag:tc('tX'), s:YEARS.map(y=>d&&d.ref[id]?d.ref[id][String(y)]:null), fmt:f};
+  const lvl=ty, ser=d?(d[lvl]||{})[id]:null;
+  if(id==='EH'&&!ser&&d&&d.ref['EH*']) return {name:te('euStarTag'), tag:ty==='s'?tc('tS'):tc('tR'), s:YEARS.map(y=>d.ref['EH*'][String(y)]), fmt:f};
+  return {name:id==='EH'?'Euskal Herria':nm(eNames[id]||{eu:id}), tag:ty==='s'?tc('tS'):tc('tR'), s:YEARS.map(y=>ser?ser[String(y)]:null), fmt:f};
+}
+function searchPool(){
+  if(VIEW==='eh'){
+    const out=[{k:'a:EH'},{k:'a:HEH'},...REGIONS.filter(r=>r.id!=='HEH').map(r=>({k:'a:'+r.id})),...AREAS.map(a=>({k:'a:'+a.id}))]
+      .filter((o,i,arr)=>arr.findIndex(x=>x.k===o.k)===i && IND(S.ind).series[o.k.slice(2)]);
+    if(MUNI.has(S.ind)) U.ids.forEach((id,i)=>{ if(U.ind[S.ind][i].some(ok)) out.push({k:'u:'+id}); });
+    return out;
+  }
+  const d=E.ind[S.ind]; if(!d) return [];
+  const out=[]; ['s','r'].forEach(l=>Object.keys(d[l]||{}).forEach(id=>out.push({k:l+':'+id})));
+  if(d.ref['EH*']&&!(d.s||{}).EH) out.unshift({k:'s:EH'});
+  Object.keys(d.ref).filter(x=>x==='EU27').forEach(x=>out.push({k:'x:'+x}));
+  return out;
+}
+function cmpToggle(k){
+  const L=cmpList(), i=L.indexOf(k); CMP.msg='';
+  if(i>=0) L.splice(i,1); else if(L.length>=10){ CMP.msg=tc('full'); } else L.push(k);
+  cmpRender(); paintMap('now'); if(E.ind[S.ind]) eDraw('now');
+}
+function cmpDefaults(){
+  if(VIEW==='eh'&&!CMP.eh.length){ const m=mainA(S.ind); CMP.eh=['a:'+m,...RACE.slice(0,4).map(a=>'a:'+a.id)].filter((k,i,a)=>a.indexOf(k)===i).slice(0,5);
+    if(S.sel&&S.sel.type==='u') CMP.eh.push('u:'+S.sel.id); }
+  if(VIEW==='eu'&&!CMP.eu.length){ CMP.eu=[EU.level+':EH',EU.level==='s'?'s:ES':'r:ES30',EU.level==='s'?'s:FR':'r:FRI1']; if(E.ind[S.ind]&&E.ind[S.ind].ref.EU27) CMP.eu.push('x:EU27'); }
+}
+
+/* --- view switch --- */
+function applyView(){
+  document.getElementById('ehstage').hidden=VIEW!=='eh'; document.getElementById('eustage').hidden=VIEW!=='eu';
+  document.querySelectorAll('#vtabs [data-v]').forEach(b=>{ b.setAttribute('aria-selected',String(b.dataset.v===VIEW)); b.textContent=tc(b.dataset.v==='eh'?'vEH':'vEU'); });
+  const hasEU=!!E.ind[S.ind]; document.querySelector('#vtabs [data-v="eu"]').classList.toggle('noeu',!hasEU);
+  document.querySelector('#vtabs [data-v="eu"]').title=hasEU?'':te('euNo').replace(/\s*Aukeratu.*|\s*Elige.*/,'');
+  const cb=document.getElementById('cmpbtn'); cb.setAttribute('aria-pressed',String(CMP.on)); cb.innerHTML=`<span aria-hidden="true">⇄</span> ${CMP.on?tc('cmpOn'):tc('cmp')}`;
+  document.getElementById('vbar').className='viewbar sec-'+IND(S.ind).section;
+}
+document.querySelectorAll('#vtabs [data-v]').forEach(b=>b.onclick=()=>{ if(VIEW===b.dataset.v) return; VIEW=b.dataset.v; try{localStorage.setItem('gj-view',VIEW);}catch(e){}
+  if(CMP.on) cmpDefaults(); applyView(); if(VIEW==='eu') euRender('sweep'); else paintMap('sweep'); cmpRender(); });
+document.getElementById('cmpbtn').onclick=()=>{ CMP.on=!CMP.on; if(CMP.on) cmpDefaults(); applyView(); cmpRender(); paintMap('now'); if(E.ind[S.ind]) eDraw('now');
+  };
+
+/* --- compare card --- */
+function cmpIsOn(){ return CMP.on; }
+function cmpPlace(){
+  const card=document.getElementById('cmp'), st=document.getElementById(VIEW==='eh'?'ehstage':'eustage');
+  document.getElementById('side').hidden=CMP.on&&VIEW==='eh';
+  document.getElementById('euside').hidden=(CMP.on&&VIEW==='eu')||!E.ind[S.ind];
+  if(CMP.on){ if(card.parentNode!==st) st.appendChild(card); }
+  else { const dock=document.querySelector('.dock'); if(card.nextElementSibling!==dock) dock.parentNode.insertBefore(card,dock); }
+}
+function cmpRender(){
+  const card=document.getElementById('cmp'); cmpPlace(); card.hidden=!CMP.on; if(!CMP.on) return;
+  card.className='card cmpcard sec-'+IND(S.ind).section;
+  const L=cmpList(), ind=IND(S.ind);
+  const noEU=VIEW==='eu'&&!E.ind[S.ind];
+  card.innerHTML=`<div class="cmphd"><div><div class="k">${esc(ind.code)} · ${esc(tc('cmpT'))}${VIEW==='eu'?' · Europa':''}</div><h3 class="cmpt">${esc(nm(ind.name))}</h3></div>
+    <div class="cmpctl"><div class="cmpsearch"><input type="search" id="cmpq" placeholder="${esc(tc(VIEW==='eh'?'phEH':'phEU'))}" autocomplete="off" aria-label="${esc(tc(VIEW==='eh'?'phEH':'phEU'))}" ${noEU?'disabled':''}><ul id="cmpres" role="listbox" hidden></ul></div>
+    <button type="button" class="cmpclear" id="cmpclear">${tc('clear')}</button></div></div>
+    <div class="cmpchips">${L.map((k,i)=>{const it=itemInfo(k);return `<span class="cchip" style="--cc:${PAL[i]}"><i></i>${esc(it.name)}<small>${esc(it.tag)}</small><button type="button" data-rm="${esc(k)}" aria-label="${tc('rm')} ${esc(it.name)}">×</button></span>`;}).join('')}<span class="small muted">${L.length}/10 · ${tc('max')}. ${tc('hint')}</span></div>
+    ${CMP.msg?`<p class="cmpmsg">${esc(CMP.msg)}</p>`:''}
+    ${noEU?`<p class="hint" style="padding:0 16px 16px">${esc(te('euNo').replace(/\s*Aukeratu.*|\s*Elige.*/,''))}</p>`:L.length?`<div class="cmpbody"><div class="cmpchart" id="cmpchart"></div><div class="cmpbars"><h3>${tc('now')} · <span id="cmpy">${S.year}</span></h3><ol id="cmpbars"></ol></div></div>`:`<p class="hint" style="padding:0 16px 16px">${tc('empty')}</p>`}`;
+  card.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>cmpToggle(b.dataset.rm));
+  document.getElementById('cmpclear').onclick=()=>{ CMP[VIEW]=[]; CMP.msg=''; cmpRender(); paintMap('now'); if(E.ind[S.ind]) eDraw('now'); };
+  const q=document.getElementById('cmpq'), res=document.getElementById('cmpres');
+  const pool=searchPool().map(o=>({...o,info:itemInfo(o.k)}));
+  const showRes=()=>{ const v=normS(q.value.trim()); if(!v){res.hidden=true;return;}
+    const hits=pool.filter(o=>normS(o.info.name).includes(v)).sort((a,b)=>normS(a.info.name).indexOf(v)-normS(b.info.name).indexOf(v)||a.info.name.length-b.info.name.length).slice(0,12);
+    res.innerHTML=hits.length?hits.map((o,i)=>`<li role="option" data-k="${esc(o.k)}" class="${L.includes(o.k)?'in':''}${i===0?' act':''}">${esc(o.info.name)} <small>${esc(o.info.tag)}</small></li>`).join(''):`<li class="none">${tc('noRes')}</li>`;
+    res.hidden=false; res.querySelectorAll('[data-k]').forEach(li=>li.onmousedown=e=>{e.preventDefault(); cmpToggle(li.dataset.k); setTimeout(()=>document.getElementById('cmpq')&&document.getElementById('cmpq').focus(),0);}); };
+  q.oninput=showRes; q.onfocus=showRes; q.onblur=()=>setTimeout(()=>{res.hidden=true;},120);
+  q.onkeydown=e=>{ const items=[...res.querySelectorAll('[data-k]')]; let i=items.findIndex(x=>x.classList.contains('act'));
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); if(!items.length) return; items[i]&&items[i].classList.remove('act'); i=(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length; items[i].classList.add('act'); items[i].scrollIntoView({block:'nearest'}); }
+    if(e.key==='Enter'&&items[i]){ e.preventDefault(); cmpToggle(items[i].dataset.k); setTimeout(()=>document.getElementById('cmpq')&&document.getElementById('cmpq').focus(),0); }
+    if(e.key==='Escape'){ res.hidden=true; } e.stopPropagation(); };
+  if(L.length&&!noEU){ cmpChart(); cmpBars(); }
+}
+function cmpChart(){
+  const L=cmpList(), items=L.map(k=>itemInfo(k)), all=items.flatMap(it=>it.s.filter(ok));
+  const box=document.getElementById('cmpchart'); if(!box) return;
+  const w=Math.max(340,Math.round(box.clientWidth||820)),h=Math.round(Math.min(300,Math.max(220,w*.62))),m={l:12,r:64,t:14,b:24};
+  const x=d3.scaleLinear().domain([Y0,Y1]).range([m.l,w-m.r]);
+  let ext=all.length?d3.extent(all):[0,1]; if(ext[0]===ext[1]){ext[0]-=1;ext[1]+=1;}
+  if(ext[0]>0&&ext[0]/ext[1]<.35) ext[0]=0;
+  const y=d3.scaleLinear().domain(ext).nice().range([h-m.b,m.t]);
+  const sv=d3.select(box).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('class','cmpsvg');
+  const dg=v=>Math.abs(ext[1]-ext[0])<5&&v%1?1:0;
+  y.ticks(5).forEach(v=>{ sv.append('line').attr('x1',m.l).attr('x2',w-m.r).attr('y1',y(v)).attr('y2',y(v)).attr('stroke','var(--line)');
+    sv.append('text').attr('x',w-m.r+6).attr('y',y(v)+4).text(fmtN(v,dg(v))); });
+  d3.range(Y0,Y1+1,w<600?5:3).filter(yy=>Y1-yy>=(w<600?3:2)).concat([Y1]).forEach(yy=>sv.append('text').attr('x',x(yy)).attr('y',h-6).attr('text-anchor','middle').text(yy));
+  const line=d3.line().defined(ok).x((v,i)=>x(Y0+i)).y(v=>y(v)).curve(d3.curveMonotoneX);
+  items.forEach((it,i)=>{
+    const p=sv.append('path').attr('d',line(it.s)||'').attr('fill','none').attr('stroke',PAL[i]).attr('stroke-width',L[i]==='a:EH'||L[i].endsWith(':EH')?3.4:2.2).attr('stroke-linejoin','round');
+    const Lg=p.node().getTotalLength()||0; if(Lg&&!RM) p.attr('stroke-dasharray',`${Lg} ${Lg}`).attr('stroke-dashoffset',Lg).transition().duration(800).delay(i*60).attr('stroke-dashoffset',0);
+    it.s.forEach((v,j)=>{ if(ok(v)&&!ok(it.s[j-1])&&!ok(it.s[j+1])) sv.append('circle').attr('cx',x(Y0+j)).attr('cy',y(v)).attr('r',3.2).attr('fill',PAL[i]); });
+  });
+  const cur=sv.append('line').attr('class','cur').attr('y1',m.t).attr('y2',h-m.b).attr('stroke','var(--ink)').attr('stroke-dasharray','2 3');
+  const dots=sv.append('g');
+  const hov=sv.append('line').attr('y1',m.t).attr('y2',h-m.b).attr('stroke','var(--ink-3)').attr('opacity',0);
+  const tip=document.createElement('div'); tip.className='tip cmptip';
+  sv.append('rect').attr('x',m.l).attr('y',m.t).attr('width',w-m.l-m.r).attr('height',h-m.t-m.b).attr('fill','transparent')
+    .on('pointermove',ev=>{ const [px]=d3.pointer(ev), yy=Math.round(x.invert(px)), j=yy-Y0; if(j<0||j>=YEARS.length) return;
+      hov.attr('x1',x(yy)).attr('x2',x(yy)).attr('opacity',1);
+      const rows=items.map((it,i)=>({it,i,v:it.s[j]})).filter(r=>ok(r.v)).sort((a,b)=>b.v-a.v);
+      tip.innerHTML=`<b>${yy}</b>`+(rows.length?rows.map(r=>`<div><i style="background:${PAL[r.i]}"></i>${esc(r.it.name)} <span class="v">${esc(r.it.fmt(r.v))}</span></div>`).join(''):`<div>${t('nodata')}</div>`);
+      const rr=box.getBoundingClientRect(); tip.style.left=Math.min(rr.width-130,Math.max(130,ev.clientX-rr.left))+'px'; tip.style.top=(ev.clientY-rr.top)+'px'; tip.style.opacity=1; })
+    .on('pointerleave',()=>{ hov.attr('opacity',0); tip.style.opacity=0; })
+    .on('click',ev=>{ const [px]=d3.pointer(ev); stop(); setYear(Math.round(x.invert(px))); });
+  box.__c={x,y,items,cur,dots,m};
+  box.appendChild(tip); cmpCursor(true);
+}
+function cmpCursor(first){
+  const box=document.getElementById('cmpchart'); if(!box||!box.__c) return; const {x,y,items,cur,dots}=box.__c, d=first?0:dur(400);
+  cur.transition().duration(d).attr('x1',x(S.year)).attr('x2',x(S.year));
+  const pts=items.map((it,i)=>{ const r=lastIn(it.s,S.year-Y0); return r?{i,cx:x(Y0+r.k),cy:y(r.v)}:null; }).filter(Boolean);
+  dots.selectAll('circle').data(pts,p=>p.i).join('circle').attr('r',4.6).attr('fill',p=>PAL[p.i]).attr('stroke','var(--surface)').attr('stroke-width',2)
+    .transition().duration(d).attr('cx',p=>p.cx).attr('cy',p=>p.cy);
+}
+function cmpBars(){
+  const ol=document.getElementById('cmpbars'); if(!ol) return; const yi=S.year-Y0;
+  const rows=cmpList().map((k,i)=>{ const it=itemInfo(k), r=lastIn(it.s,yi); return {k,i,it,v:r?r.v:null,dy:r?Y0+r.k:null}; });
+  const okr=rows.filter(r=>ok(r.v)), mx=d3.max(okr,r=>r.v)??1, mn=Math.min(0,d3.min(okr,r=>r.v)??0);
+  rows.sort((a,b)=>(ok(b.v)?b.v:-Infinity)-(ok(a.v)?a.v:-Infinity));
+  document.getElementById('cmpy').textContent=S.year;
+  ol.innerHTML=rows.map((r,n)=>`<li><span class="pos">${ok(r.v)?(n+1)+'.':''}</span><span class="nmx"><i style="background:${PAL[r.i]}"></i>${esc(r.it.name)}</span><span class="bar"><i style="width:${ok(r.v)?Math.max(1.5,(r.v-mn)/((mx-mn)||1)*100):0}%;background:${PAL[r.i]}"></i></span><span class="v">${esc(ok(r.v)?r.it.fmt(r.v):t('nodata'))}${ok(r.v)&&r.dy!==S.year?`<small> (${r.dy})</small>`:''}</span></li>`).join('');
+}
+function cmpYear(){ if(!CMP.on) return; cmpCursor(false); cmpBars(); }
+
+/* --- map hooks: colours + click to add --- */
+const _paintMap=paintMap;
+paintMap=function(mode){ _paintMap(mode);
+  const on=CMP.on&&VIEW==='eh';
+  mpaths.style('stroke',f=>on&&useU()?cmpColor('u:'+f.id):null).style('stroke-width',f=>on&&useU()&&cmpColor('u:'+f.id)?'2.6px':null).classed('cmpd',f=>on&&useU()&&!!cmpColor('u:'+f.id));
+  hpaths.style('stroke',f=>on&&!useU()?cmpColor('a:'+f.properties.h):null).style('stroke-width',f=>on&&!useU()&&cmpColor('a:'+f.properties.h)?'3.4px':null);
+  mpaths.filter('.cmpd').raise();
+};
+mpaths.on('click',(e,f)=>{ if(CMP.on&&VIEW==='eh'){ cmpToggle(useU()?'u:'+f.id:'a:'+f.properties.h); return; }
+  S.sel=useU()?{type:'u',id:f.id}:{type:'h',id:f.properties.h}; paintMap('now'); buildSel(); updRank(); });
+function eClick(f){ if(CMP.on&&VIEW==='eu'){ cmpToggle(EU.level+':'+f.id); return; } EU.sel=f.id===EU.sel?null:f.id; eDraw('now'); eSide(); }
+function eCmpStyle(){ const on=CMP.on&&VIEW==='eu'; eG.selectAll('path').style('stroke',f=>on?cmpColor(EU.level+':'+f.id):null).style('stroke-width',f=>on&&cmpColor(EU.level+':'+f.id)?'2.6px':null); }
+
+renderAll(true);
+})();
+</script>
+
+</html>
